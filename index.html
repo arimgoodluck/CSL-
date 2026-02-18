@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play & Say - Arianna's Words</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="confetti-canvas"></canvas>
+
+    <div class="main-layout">
+        <div class="play-scene" id="main-scene">
+            <div class="ui-layer">
+                <div class="ui-card">Level: <span id="level-num">1</span> | Stars: <span id="score">0</span></div>
+                <div class="button-group">
+                    <button id="aide-btn">⭐ Give Speech Points</button>
+                    <button id="review-btn">Review: OFF</button>
+                    <button id="reset-btn">Reset</button>
+                </div>
+            </div>
+            <div id="item-grid" class="item-grid"></div>
+        </div>
+
+        <div class="core-board" id="core-board"></div>
+    </div>
+
+    <div id="character" class="character">
+        <div class="char-body">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="mouth"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

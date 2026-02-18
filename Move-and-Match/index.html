@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensory Shape Match - SVG Edition</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="confetti-canvas"></canvas>
+
+    <div class="ui-layer">
+        <div class="ui-card">Stars: <span id="score">0</span></div>
+        <div class="button-group">
+            <button id="mute-btn">Sound: ON</button>
+            <button id="reset-btn">Reset</button>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div id="target-area" class="random-grid"></div>
+        <hr class="divider">
+        <div id="shape-area" class="random-grid"></div>
+    </div>
+
+    <div id="character" class="character">
+        <div class="char-body">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="mouth"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

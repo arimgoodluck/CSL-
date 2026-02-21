@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Game - Play</title>
+    <style>
+        /* ========== GLOBAL STYLES ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 800px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Header with back button and total score */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .back-btn {
+            padding: 0.5rem 1rem;
+            background: #718096;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .back-btn:hover {
+            background: #4a5568;
+        }
+
+        .total-score-header {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #48bb78;
+        }
+
+        .level-selector {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .level-selector label {
+            font-size: 1.1rem;
+            color: #555;
+            margin-right: 0.5rem;
+        }
+
+        .level-selector select {
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .level-selector select:focus {
+            border-color: #667eea;
+        }
+
+        /* ========== GAME AREA ========== */
+        .game-area {
+            text-align: center;
+        }
+
+        .counting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .number-box {
+            text-align: center;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .images {
+            min-height: 60px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .images img {
+            width: 40px;
+            height: 40px;
+            margin: 0 5px;
+            object-fit: contain;
+        }
+
+        .count-controls {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .count-controls input {
+            width: 100px;
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .count-controls button {
+            padding: 0.5rem 1rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .count-controls button:hover {
+            background: #5a67d8;
+        }
+
+        .count-controls button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .operation-symbol {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #333;
+            margin: 0 1rem;
+        }
+
+        .final-row {
+            margin: 2rem 0;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .final-row input {
+            width: 150px;
+            padding: 0.75rem;
+            font-size: 1.1rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .final-row input:disabled {
+            background: #f0f0f0;
+            cursor: not-allowed;
+        }
+
+        .final-row button {
+            padding: 0.75rem 1.5rem;
+            background: #48bb78;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .final-row button:hover {
+            background: #38a169;
+        }
+
+        /* ========== FEEDBACK STYLES ========== */
+        .feedback {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-weight: bold;
+            min-height: 2.5rem;
+        }
+
+        .feedback.correct {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .feedback.incorrect {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        /* ========== SCORE & NEW QUESTION ========== */
+        .current-score {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+            margin: 1rem 0;
+        }
+
+        .new-question-btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .new-question-btn:hover {
+            background: #5a67d8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with back button and total score -->
+        <div class="game-header">
+            <button class="back-btn" onclick="goBack()">⬅ Back to Home</button>
+            <div class="total-score-header">
+                Total Score: <span id="totalScoreDisplay">0</span>
+            </div>
+        </div>
+
+        <h1>🧮 Let's Count!</h1>
+
+        <!-- Level Selector -->
+        <div class="level-selector">
+            <label for="level">Select Level:</label>
+            <select id="level">
+                <option value="1">Level 1 - Addition (10 pts)</option>
+                <option value="2">Level 2 - Subtraction (20 pts)</option>
+                <option value="3">Level 3 - Multiplication (50 pts)</option>
+                <option value="4">Level 4 - Division (100 pts)</option>
+            </select>
+        </div>
+
+        <!-- Game Area -->
+        <div class="game-area">
+            <!-- Counting Row: Two numbers with images and check inputs -->
+            <div class="counting-row">
+                <!-- First Number -->
+                <div class="number-box">
+                    <div class="images" id="num1-images"></div>
+                    <div class="count-controls">
+                        <input type="number" id="count1" placeholder="Count 1st number">
+                        <button onclick="checkCount(1)">Check</button>
+                    </div>
+                    <div class="feedback" id="feedback1"></div>
+                </div>
+
+                <!-- Operation Symbol -->
+                <div class="operation-symbol" id="operation-symbol">+</div>
+
+                <!-- Second Number -->
+                <div class="number-box">
+                    <div class="images" id="num2-images"></div>
+                    <div class="count-controls">
+                        <input type="number" id="count2" placeholder="Count 2nd number">
+                        <button onclick="checkCount(2)">Check</button>
+                    </div>
+                    <div class="feedback" id="feedback2"></div>
+                </div>
+            </div>
+
+            <!-- Final Answer Section -->
+            <div class="final-row">
+                <input type="number" id="final-answer" placeholder="Enter result" disabled>
+                <button onclick="checkFinalAnswer()">Submit Final Answer</button>
+            </div>
+            <div id="final-feedback" class="feedback"></div>
+
+            <!-- New Question Button -->
+            <button class="new-question-btn" onclick="generateQuestion()">🔄 New Question</button>
+
+            <!-- Current Game Score Display -->
+            <div class="current-score" id="score">Current Game Score: 0</div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // MATH GAME WITH IMAGE COUNTING & LEVEL SCORING
+        // Numbers are 1-8 for all levels
+        // Total score stored in localStorage
+        // ============================================
+
+        // Global variables
+        let currentQuestion = { num1: 0, num2: 0, operation: '+', answer: 0 };
+        let currentScore = 0;      // score for this game session
+        let num1Correct = false;
+        let num2Correct = false;
+
+        // Load total score from localStorage
+        let totalScore = parseInt(localStorage.getItem('mathGameTotalScore')) || 0;
+
+        // Update total score display on page
+        function updateTotalDisplay() {
+            const totalElem = document.getElementById('totalScoreDisplay');
+            if (totalElem) totalElem.textContent = totalScore;
+        }
+
+        // Helper: Get operation symbol from level
+        function getOperationSymbol(level) {
+            const operations = { '1': '+', '2': '-', '3': '×', '4': '÷' };
+            return operations[level] || '+';
+        }
+
+        // Display images (using your blue circle image)
+        function displayImages(containerId, count) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            const imagePath = 'image sources/blue_circ.png'; // adjust if needed
+            for (let i = 0; i < count; i++) {
+                const img = document.createElement('img');
+                img.src = imagePath;
+                img.alt = 'blue circle';
+                container.appendChild(img);
+            }
+        }
+
+        // Generate a new question
+        function generateQuestion() {
+            const level = document.getElementById('level').value;
+            let num1, num2, answer;
+
+            switch(level) {
+                case '1': // Addition
+                    num1 = Math.floor(Math.random() * 8) + 1;
+                    num2 = Math.floor(Math.random() * 8) + 1;
+                    answer = num1 + num2;
+                    break;
+                case '2': // Subtraction
+                    num1 = Math.floor(Math.random() * 8) + 1;
+                    num2 = Math.floor(Math.random() * 8) + 1;
+                    if (num2 > num1) [num1, num2] = [num2, num1];
+                    answer = num1 - num2;
+                    break;
+                case '3': // Multiplication
+                    num1 = Math.floor(Math.random() * 8) + 1;
+                    num2 = Math.floor(Math.random() * 8) + 1;
+                    answer = num1 * num2;
+                    break;
+                case '4': // Division
+                    num2 = Math.floor(Math.random() * 8) + 1;
+                    answer = Math.floor(Math.random() * 8) + 1;
+                    num1 = num2 * answer;
+                    break;
+            }
+
+            const operation = getOperationSymbol(level);
+            currentQuestion = { num1, num2, operation, answer };
+
+            displayImages('num1-images', num1);
+            displayImages('num2-images', num2);
+            document.getElementById('operation-symbol').textContent = operation;
+
+            // Reset counting inputs & feedback
+            document.getElementById('count1').value = '';
+            document.getElementById('count2').value = '';
+            document.getElementById('feedback1').textContent = '';
+            document.getElementById('feedback2').textContent = '';
+            document.getElementById('feedback1').className = 'feedback';
+            document.getElementById('feedback2').className = 'feedback';
+            
+            const finalFeedback = document.getElementById('final-feedback');
+            if (finalFeedback) {
+                finalFeedback.textContent = '';
+                finalFeedback.className = 'feedback';
+            }
+
+            num1Correct = false;
+            num2Correct = false;
+
+            document.getElementById('count1').disabled = false;
+            document.getElementById('count2').disabled = false;
+            document.getElementById('final-answer').disabled = true;
+            document.getElementById('final-answer').value = '';
+
+            const checkBtn1 = document.querySelector('#count1').parentElement.querySelector('button');
+            const checkBtn2 = document.querySelector('#count2').parentElement.querySelector('button');
+            if (checkBtn1) checkBtn1.disabled = false;
+            if (checkBtn2) checkBtn2.disabled = false;
+        }
+
+        // Check counting input
+        function checkCount(number) {
+            const inputId = number === 1 ? 'count1' : 'count2';
+            const feedbackId = number === 1 ? 'feedback1' : 'feedback2';
+            const correctValue = number === 1 ? currentQuestion.num1 : currentQuestion.num2;
+
+            const userValue = parseInt(document.getElementById(inputId).value);
+
+            if (isNaN(userValue)) {
+                document.getElementById(feedbackId).textContent = 'Please enter a number!';
+                document.getElementById(feedbackId).className = 'feedback incorrect';
+                return;
+            }
+
+            if (userValue === correctValue) {
+                document.getElementById(feedbackId).textContent = 'Correct! 🎉';
+                document.getElementById(feedbackId).className = 'feedback correct';
+
+                document.getElementById(inputId).disabled = true;
+                const checkBtn = document.getElementById(inputId).parentElement.querySelector('button');
+                if (checkBtn) checkBtn.disabled = true;
+
+                if (number === 1) num1Correct = true;
+                else num2Correct = true;
+
+                if (num1Correct && num2Correct) {
+                    document.getElementById('final-answer').disabled = false;
+                    document.getElementById('final-answer').focus();
+                }
+            } else {
+                document.getElementById(feedbackId).textContent = 'Incorrect. Try again.';
+                document.getElementById(feedbackId).className = 'feedback incorrect';
+            }
+        }
+
+        // Check final answer
+        function checkFinalAnswer() {
+            if (!num1Correct || !num2Correct) {
+                alert('Please count both numbers correctly first!');
+                return;
+            }
+
+            const userAnswer = parseFloat(document.getElementById('final-answer').value);
+            const finalFeedback = document.getElementById('final-feedback');
+
+            if (!finalFeedback) {
+                console.error('final-feedback element not found!');
+                alert('Game error: missing feedback element.');
+                return;
+            }
+
+            if (isNaN(userAnswer)) {
+                finalFeedback.textContent = 'Please enter a number!';
+                finalFeedback.className = 'feedback incorrect';
+                return;
+            }
+
+            const level = document.getElementById('level').value;
+            let points = 0;
+            switch(level) {
+                case '1': points = 10; break;
+                case '2': points = 20; break;
+                case '3': points = 50; break;
+                case '4': points = 100; break;
+            }
+
+            if (userAnswer === currentQuestion.answer) {
+                finalFeedback.textContent = 'Correct! 🎉';
+                finalFeedback.className = 'feedback correct';
+                currentScore += points;
+                document.getElementById('score').textContent = `Current Game Score: ${currentScore}`;
+
+                setTimeout(() => {
+                    generateQuestion();
+                }, 1000);
+            } else {
+                finalFeedback.textContent = `Incorrect. The correct answer was ${currentQuestion.answer}`;
+                finalFeedback.className = 'feedback incorrect';
+            }
+        }
+
+        // Go back to homepage, adding current score to total
+        function goBack() {
+            totalScore += currentScore;
+            localStorage.setItem('mathGameTotalScore', totalScore);
+            window.location.href = 'mathhome.html';
+        }
+
+        // ========== EVENT LISTENERS ==========
+        document.getElementById('level').addEventListener('change', generateQuestion);
+
+        window.onload = function() {
+            generateQuestion();
+            updateTotalDisplay(); // show total score from localStorage
+        };
+
+        document.getElementById('final-answer').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && !this.disabled) {
+                checkFinalAnswer();
+            }
+        });
+    </script>
+</body>
+</html>

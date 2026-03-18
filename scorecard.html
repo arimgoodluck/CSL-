@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scorecard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Styles to neatly align the scores and reset buttons */
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px; 
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .score-info {
+            display: flex;
+            gap: 10px;
+        }
+        .reset-btn {
+            background: #D2202F; /* Red color for the reset button */
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Playfair Display', serif;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+        .reset-btn:hover {
+            background: #a11824; /* Darker red on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <button class="back-btn" onclick="location.href='index.html'">Back</button>
+            <div class="score">Scorecard</div>
+        </div>
+        
+        <div class="scorecard" id="scorecard">
+            <div class="score-item">
+                <div class="score-info"><span>Addition:</span> <span id="additionScore">0</span></div>
+                <button class="reset-btn" onclick="resetScore('additionScore')">Reset</button>
+            </div>
+            <div class="score-item">
+                <div class="score-info"><span>Subtraction:</span> <span id="subtractionScore">0</span></div>
+                <button class="reset-btn" onclick="resetScore('subtractionScore')">Reset</button>
+            </div>
+            <div class="score-item">
+                <div class="score-info"><span>Multiplication:</span> <span id="multiplicationScore">0</span></div>
+                <button class="reset-btn" onclick="resetScore('multiplicationScore')">Reset</button>
+            </div>
+            <div class="score-item">
+                <div class="score-info"><span>Division:</span> <span id="divisionScore">0</span></div>
+                <button class="reset-btn" onclick="resetScore('divisionScore')">Reset</button>
+            </div>
+            <div class="score-item">
+                <div class="score-info"><span>Memory Level 1:</span> <span id="memoryLevel1Score">0</span></div>
+                <button class="reset-btn" onclick="resetScore('memoryLevel1Score')">Reset</button>
+            </div>
+            <div class="score-item">
+                <div class="score-info"><span>Memory Level 2:</span> <span id="memoryLevel2Score">0</span></div>
+                <button class="reset-btn" onclick="resetScore('memoryLevel2Score')">Reset</button>
+            </div>
+            <div class="score-item">
+                <div class="score-info"><span>Memory Level 3:</span> <span id="memoryLevel3Score">0</span></div>
+                <button class="reset-btn" onclick="resetScore('memoryLevel3Score')">Reset</button>
+            </div>
+        </div>
+    </div>
+    <script src="js/scorecard.js"></script>
+</body>
+</html>

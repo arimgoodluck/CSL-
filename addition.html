@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Addition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <button class="back-btn" onclick="location.href='index.html'">Back</button>
+            <div class="score">Score: <span id="scoreDisplay">0</span></div>
+        </div>
+
+        <div class="equation-area" id="equationArea">
+            <!-- dynamically filled -->
+        </div>
+
+        <div class="choices-area" id="choicesArea"></div>
+
+        <div class="message" id="message"></div>
+
+        <button class="check-btn" id="checkBtn">Check Answer</button>
+        <button class="next-btn" id="nextBtn" style="display:none;">Next Question</button>
+    </div>
+
+    <script>
+        // Operation specific settings
+        const operation = 'addition';      // change for each file
+        const points = 10;                  // addition=10, subtraction=20, multiplication=50, division=100
+        const operatorSymbol = '+';
+    </script>
+    <script src="js/mathGame.js"></script>
+</body>
+</html>

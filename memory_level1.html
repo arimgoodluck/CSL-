@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Memory Game - Level 1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Memory game specific styles */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+            position: relative;
+        }
+        .card.memory-card {
+            width: 100px;
+            height: 140px;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.3s;
+        }
+        .card.memory-card.flip {
+            transform: rotateY(180deg);
+        }
+        .card.memory-card .front, .card.memory-card .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: 900;
+            background-size: cover;
+            background-position: center;
+        }
+        .card.memory-card .front {
+            transform: rotateY(180deg);
+            color: black; /* overridden by suit in JS */
+        }
+        .card.memory-card .back {
+            background-image: url('image sources/face_down.png');
+            transform: rotateY(0deg);
+        }
+        .card.memory-card.shake {
+            animation: shake 0.3s;
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+        .face-down-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 210px;
+            background-image: url('image sources/face_down.png');
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+        .face-down-center.show {
+            opacity: 1;
+        }
+        .rematch-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: #D2B48C;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: white;
+        }
+        .game-area {
+            position: relative;
+            min-height: 500px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <button class="back-btn" onclick="location.href='index.html'">Back</button>
+            <div class="score">Memory Score: <span id="memoryScore">0</span></div>
+        </div>
+        <div class="game-area" id="gameArea">
+            <div class="face-down-center" id="faceDownCenter"></div>
+            <div class="memory-grid" id="memoryGrid"></div>
+            <button class="rematch-btn" id="rematchBtn">Rematch</button>
+        </div>
+    </div>
+    <script>
+        // Level configuration
+        const levelConfig = {
+            level: 1,
+            suit: 'spades', // for level 2 use 'hearts', level 3 use 'spades' again
+            gridCols: 4,
+            gridRows: 4,
+            totalCards: 16,
+            maxNumber: 8,
+            points: 50
+        };
+    </script>
+    <script src="js/memoryGame.js"></script>
+</body>
+</html>

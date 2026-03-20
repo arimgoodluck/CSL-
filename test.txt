@@ -1,0 +1,20 @@
+VERSION - ADDITION OF BLUE CIRCLES 17/02/2026 9PM
+
+Open in browser
+Simply open the HTML file in any modern web browser. The game will start automatically.
+
+How to play
+
+Count the blue circles shown for the first and second numbers.
+
+Type the count in the corresponding input box and click Check.
+
+After both counts are correct, the final answer box becomes enabled.
+
+Perform the arithmetic operation (shown between the two sets of circles) and enter the result, then click Submit Final Answer.
+
+Earn points based on the level (10, 20, 50, or 100 per correct final answer).
+
+Use the New Question button at any time to get a new problem.
+
+Change the level using the dropdown to practice different operations.

@@ -1,0 +1,3580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Check In Tool</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg:
+        radial-gradient(circle at 18% 16%, rgba(255, 218, 124, 0.24) 0 8%, rgba(255, 218, 124, 0) 20%),
+        radial-gradient(circle at 82% 18%, rgba(125, 200, 255, 0.2) 0 10%, rgba(125, 200, 255, 0) 24%),
+        linear-gradient(180deg, #f8fbff 0%, #eef4ff 52%, #e5efff 100%);
+      --text: #1f3566;
+      --muted: #5c709d;
+      --panel: rgba(255, 255, 255, 0.78);
+      --panel-border: rgba(255, 255, 255, 0.82);
+      --shadow-soft: 0 18px 40px rgba(36, 56, 107, 0.1);
+      --shadow-strong: 0 26px 54px rgba(36, 56, 107, 0.16);
+      --bubble-bg: rgba(255, 255, 255, 0.95);
+      --bubble-border: #e4ebff;
+      --select-ring: 0 0 0 4px rgba(124, 170, 255, 0.22);
+      --speed-fast: 0.25s;
+      --speed-med: 0.4s;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    .app {
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .screen {
+      display: none;
+      min-height: 100vh;
+      padding: 28px 24px 40px;
+      animation: screenFade 0.35s ease;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .screen-inner {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      position: relative;
+    }
+
+    @keyframes screenFade {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ---------- HOME SCREEN ---------- */
+
+    .home-wrap {
+      min-height: calc(100vh - 68px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .home-bg-decor {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glow-floor {
+      position: absolute;
+      left: 50%;
+      bottom: 90px;
+      transform: translateX(-50%);
+      width: min(980px, 90vw);
+      height: 170px;
+      background: radial-gradient(
+        ellipse at center,
+        rgba(147, 194, 255, 0.42) 0%,
+        rgba(147, 194, 255, 0.2) 40%,
+        rgba(147, 194, 255, 0) 75%
+      );
+      filter: blur(12px);
+    }
+
+    .rainbow-left {
+      display: none;
+    }
+
+    .cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 999px;
+      filter: blur(0.3px);
+    }
+
+    .cloud::before,
+    .cloud::after {
+      content: "";
+      position: absolute;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+    }
+
+    .cloud-left {
+      width: 120px;
+      height: 42px;
+      left: 18px;
+      bottom: 8px;
+    }
+
+    .cloud-left::before {
+      width: 42px;
+      height: 42px;
+      left: 14px;
+      top: -16px;
+    }
+
+    .cloud-left::after {
+      width: 56px;
+      height: 56px;
+      left: 46px;
+      top: -26px;
+    }
+
+    .cloud-right {
+      width: 150px;
+      height: 50px;
+      right: 30px;
+      bottom: 16px;
+    }
+
+    .cloud-right::before {
+      width: 48px;
+      height: 48px;
+      left: 18px;
+      top: -16px;
+    }
+
+    .cloud-right::after {
+      width: 68px;
+      height: 68px;
+      left: 58px;
+      top: -30px;
+    }
+
+    .hill-right {
+      display: none;
+    }
+
+    .hill-right::after {
+      content: "";
+      position: absolute;
+      right: -20px;
+      bottom: 0;
+      width: 120px;
+      height: 50px;
+      background: linear-gradient(180deg, #7dd48c 0%, #67c677 100%);
+      border-radius: 120px 120px 0 0;
+    }
+
+    .stars {
+      position: absolute;
+      inset: 0;
+    }
+
+    .star {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: #ffe7a0;
+      transform: rotate(45deg);
+      border-radius: 2px;
+      opacity: 0.9;
+      box-shadow: 0 0 18px rgba(255, 231, 160, 0.45);
+    }
+
+    .star::before,
+    .star::after {
+      content: "";
+      position: absolute;
+      background: #ffe7a0;
+      border-radius: 2px;
+    }
+
+    .star::before {
+      width: 12px;
+      height: 12px;
+      left: -6px;
+      top: 0;
+    }
+
+    .star::after {
+      width: 12px;
+      height: 12px;
+      left: 0;
+      top: -6px;
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    }
+
+    .home-hero {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      margin-bottom: 8px;
+      padding-top: 12px;
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hero-copy {
+      text-align: center;
+      max-width: 700px;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.88);
+      box-shadow: 0 10px 26px rgba(60, 89, 147, 0.08);
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #5b73a8;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .hero-kicker::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #7dcf89;
+      box-shadow: 0 0 0 6px rgba(125, 207, 137, 0.16);
+    }
+
+    .robot-cluster {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 14px;
+      width: min(360px, 100%);
+      margin: 0 auto;
+      animation: robotFloat 3s ease-in-out infinite;
+    }
+
+    .robot-bubble {
+      position: relative;
+      width: min(360px, 84vw);
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid #edf2ff;
+      color: #6d85b9;
+      padding: 16px 24px;
+      border-radius: 26px;
+      box-shadow: 0 16px 34px rgba(36, 56, 107, 0.1);
+      font-size: 1.02rem;
+      font-weight: 700;
+      line-height: 1.4;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+
+    .robot-bubble::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -26px;
+      width: 8px;
+      height: 28px;
+      background: rgba(255, 255, 255, 0.95);
+      border-left: 2px solid #edf2ff;
+      border-right: 2px solid #edf2ff;
+      border-radius: 999px;
+      transform: translateX(-50%);
+    }
+
+    .robot-bubble::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -36px;
+      width: 18px;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.95);
+      border-right: 2px solid #edf2ff;
+      border-bottom: 2px solid #edf2ff;
+      transform: translateX(-50%) rotate(45deg);
+    }
+
+    .robot-bubble.fade-out {
+      opacity: 0;
+      transform: translateY(8px) scale(0.96);
+    }
+
+    .robot-bubble.fade-in {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .home-title {
+      margin: 14px 0 0;
+      font-size: clamp(2.7rem, 5vw, 4.3rem);
+      letter-spacing: 0.01em;
+      padding-top: 0;
+      color: #28457f;
+      text-shadow: 0 2px 0 rgba(255, 255, 255, 0.55);
+    }
+
+    .home-subtitle {
+      margin: 10px 0 20px;
+      font-size: clamp(1.02rem, 2vw, 1.18rem);
+      color: #5e74a7;
+      font-weight: 600;
+      line-height: 1.55;
+    }
+
+    .tool-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+      width: min(1040px, 100%);
+      margin: 18px auto 0;
+      align-items: stretch;
+    }
+
+    .tool-card {
+      border: none;
+      border-radius: 36px;
+      min-height: 400px;
+      padding: 28px 26px 22px;
+      cursor: pointer;
+      font: inherit;
+      color: var(--text);
+      box-shadow: 0 24px 46px rgba(99, 137, 214, 0.18);
+      transition: transform 0.28s ease, box-shadow 0.28s ease, filter 0.28s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 34%),
+        radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 40%);
+      pointer-events: none;
+    }
+
+    .tool-card::after {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.34);
+      opacity: 0.65;
+      pointer-events: none;
+    }
+
+    .tool-card:hover,
+    .tool-card:focus-visible {
+      transform: translateY(-12px) scale(1.025);
+      box-shadow: 0 34px 58px rgba(99, 137, 214, 0.24);
+      filter: brightness(1.03);
+      outline: none;
+    }
+
+    .tool-card:active {
+      transform: translateY(-4px) scale(1.01);
+    }
+
+    .tool-icon {
+      font-size: 3.1rem;
+      line-height: 1;
+      margin-top: 18px;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+      width: 90px;
+      height: 90px;
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.42);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+
+    .tool-label {
+      font-size: 1.02rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      margin-top: 12px;
+      margin-bottom: 0;
+      color: #24406f;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tool-label-main {
+      display: block;
+      font-size: 1.85rem;
+      line-height: 1.06;
+    }
+
+    .tool-label-sub {
+      display: block;
+      margin-top: 12px;
+      font-size: 0.98rem;
+      line-height: 1.5;
+      font-weight: 600;
+      color: rgba(36, 64, 111, 0.78);
+    }
+
+    .tool-pill {
+      width: calc(100% - 8px);
+      border-radius: 22px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: auto;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 12px 24px rgba(0, 0, 0, 0.08);
+      position: relative;
+      z-index: 1;
+    }
+
+    .tool-pill-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.55);
+      font-size: 1.9rem;
+      flex: 0 0 auto;
+    }
+
+    .tool-pill-text {
+      text-align: left;
+      color: white;
+      font-size: 0.95rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .tool-pill-sub {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      opacity: 0.94;
+      margin-top: 3px;
+      letter-spacing: 0.02em;
+    }
+
+    .tool-daily {
+      background: linear-gradient(180deg, #d9f5c9 0%, #c4ecb8 56%, #b7e0a7 100%);
+    }
+
+    .tool-control {
+      background: linear-gradient(180deg, #ffe9a3 0%, #f7d978 56%, #f2cb5a 100%);
+    }
+
+    .tool-voice {
+      background: linear-gradient(180deg, #cee7ff 0%, #b6d8f7 58%, #a1c8ef 100%);
+    }
+
+    .tool-daily .tool-pill {
+      background: linear-gradient(180deg, #59c87d 0%, #49b96e 100%);
+    }
+
+    .tool-control .tool-pill {
+      background: linear-gradient(180deg, #f1bc43 0%, #e9ab2d 100%);
+    }
+
+    .tool-voice .tool-pill {
+      background: linear-gradient(180deg, #6ba8e8 0%, #5a97d9 100%);
+    }
+
+    .home-dots {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .home-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      box-shadow: 0 3px 8px rgba(36, 56, 107, 0.08);
+    }
+
+    .dot-green { background: #8cd38a; }
+    .dot-yellow { background: #f0c85a; }
+    .dot-blue { background: #8cbef2; }
+    .dot-cream { background: #efe8dc; }
+
+    .home-status {
+      margin: 18px auto 0;
+      min-height: 28px;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #4a6298;
+      position: relative;
+      z-index: 1;
+      padding: 14px 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.86);
+      box-shadow: 0 12px 26px rgba(52, 77, 131, 0.08);
+      width: fit-content;
+      max-width: min(100%, 460px);
+    }
+
+    /* ---------- CHARACTER ---------- */
+
+    .robot {
+      position: relative;
+      width: 168px;
+      height: 158px;
+      filter: drop-shadow(0 20px 30px rgba(218, 181, 88, 0.28));
+      flex: 0 0 auto;
+      cursor: pointer;
+      transition: transform 0.28s ease, filter 0.28s ease;
+    }
+
+    .robot.small {
+      width: 138px;
+      height: 132px;
+    }
+
+    .antenna {
+      display: none;
+    }
+
+    .antenna-ball {
+      display: none;
+    }
+
+    .robot-head {
+      position: absolute;
+      top: 14px;
+      left: 18px;
+      width: 132px;
+      height: 132px;
+      border-radius: 0;
+      background:
+        radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.82) 0 8%, rgba(255, 255, 255, 0) 9%),
+        radial-gradient(circle at 68% 68%, rgba(215, 160, 58, 0.2) 0 20%, rgba(215, 160, 58, 0) 21%),
+        linear-gradient(180deg, #fff8c7 0%, #f8e183 48%, #f0c64c 100%);
+      border: 4px solid #d7b24f;
+      box-shadow:
+        inset -12px -12px 18px rgba(215, 178, 79, 0.24),
+        inset 10px 10px 14px rgba(255, 251, 219, 0.82),
+        0 14px 24px rgba(219, 181, 89, 0.24);
+      z-index: 3;
+      transform-origin: center bottom;
+      transition: transform 0.28s ease, filter 0.35s ease, background 0.35s ease, border-color 0.35s ease;
+      clip-path: polygon(50% 0%, 61% 32%, 96% 35%, 69% 55%, 78% 90%, 50% 71%, 22% 90%, 31% 55%, 4% 35%, 39% 32%);
+      animation: starPulse 4.4s ease-in-out infinite;
+    }
+
+    .robot-head::before {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      clip-path: inherit;
+      background: linear-gradient(180deg, rgba(255, 252, 225, 0.38), rgba(255, 240, 186, 0));
+      opacity: 0.65;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .robot-head::after {
+      content: "";
+      position: absolute;
+      inset: -6px;
+      clip-path: inherit;
+      border: 2px solid rgba(255, 244, 198, 0.45);
+      opacity: 0.5;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .robot-face {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: transparent;
+      overflow: visible;
+    }
+
+    .robot-face::before {
+      content: "";
+      position: absolute;
+      top: 22px;
+      left: 36px;
+      width: 56px;
+      height: 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.55);
+      filter: blur(3px);
+      z-index: 2;
+    }
+
+    .robot-face::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 64px;
+      width: 14px;
+      height: 10px;
+      transform: translateX(-50%);
+      border-radius: 50% 50% 60% 60%;
+      background: linear-gradient(180deg, #df9b68 0%, #c97b48 100%);
+      box-shadow: 0 2px 0 rgba(255, 248, 220, 0.28);
+      opacity: 0.95;
+      z-index: 3;
+    }
+
+    .eye {
+      position: absolute;
+      top: 48px;
+      width: 20px;
+      height: 22px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 40% 28%, #ffffff 0 16%, #7f633a 17% 34%, #2e2416 35% 100%);
+      animation: blink 4s infinite;
+      box-shadow:
+        inset 0 -3px 0 rgba(0, 0, 0, 0.12),
+        0 2px 8px rgba(111, 84, 40, 0.18);
+    }
+
+    .eye.left {
+      left: 40px;
+    }
+
+    .eye.right {
+      right: 40px;
+    }
+
+    .eye::after {
+      content: "";
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      width: 7px;
+      height: 7px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 50%;
+    }
+
+    .brow {
+      position: absolute;
+      top: 36px;
+      width: 24px;
+      height: 8px;
+      border-top: 5px solid #9a6c3b;
+      border-radius: 999px;
+      opacity: 0.9;
+      z-index: 4;
+      transition: transform 0.22s ease, top 0.22s ease, opacity 0.22s ease;
+    }
+
+    .brow.left {
+      left: 36px;
+      transform: rotate(-12deg);
+    }
+
+    .brow.right {
+      right: 36px;
+      transform: rotate(12deg);
+    }
+
+    .robot.mood-happy .brow.left {
+      transform: rotate(-24deg) translateY(-2px);
+    }
+
+    .robot.mood-happy .brow.right {
+      transform: rotate(24deg) translateY(-2px);
+    }
+
+    .robot.mood-happy .mouth {
+      width: 34px;
+      height: 15px;
+      bottom: 34px;
+      border-top: none;
+      border-bottom: 4px solid #9a6c3b;
+      border-left: 3px solid transparent;
+      border-right: 3px solid transparent;
+      border-radius: 0 0 24px 24px;
+      background: transparent;
+      transform: translateX(-50%) scaleX(1.12);
+      overflow: visible;
+    }
+
+    .robot.mood-calm .brow.left {
+      transform: rotate(-2deg) translateY(2px);
+    }
+
+    .robot.mood-calm .brow.right {
+      transform: rotate(2deg) translateY(2px);
+    }
+
+    .robot.mood-calm .mouth {
+      width: 24px;
+      height: 10px;
+      bottom: 37px;
+      border: none;
+      border-radius: 0;
+      background: #9a6c3b;
+      clip-path: polygon(0 42%, 12% 18%, 24% 58%, 36% 22%, 48% 64%, 60% 26%, 72% 68%, 84% 30%, 100% 48%, 100% 72%, 84% 54%, 72% 92%, 60% 46%, 48% 84%, 36% 40%, 24% 78%, 12% 38%, 0 66%);
+      opacity: 0.92;
+    }
+
+    .robot.mood-worried .brow {
+      top: 42px;
+      opacity: 0.82;
+    }
+
+    .robot.mood-worried .brow.left {
+      transform: rotate(16deg) translateX(2px);
+    }
+
+    .robot.mood-worried .brow.right {
+      transform: rotate(-16deg) translateX(-2px);
+    }
+
+    .robot.mood-worried .mouth {
+      width: 22px;
+      height: 10px;
+      border-bottom-width: 3px;
+      border-radius: 18px 18px 0 0;
+      border-top: 3px solid #9a6c3b;
+      border-bottom: none;
+      bottom: 38px;
+    }
+
+    .robot.mood-sad .brow {
+      top: 34px;
+      opacity: 1;
+    }
+
+    .robot.mood-sad .brow.left {
+      transform: rotate(22deg) translateX(3px) translateY(6px);
+    }
+
+    .robot.mood-sad .brow.right {
+      transform: rotate(-22deg) translateX(-3px) translateY(6px);
+    }
+
+    .robot.mood-sad {
+      animation: sadShake 1.2s ease-in-out infinite;
+    }
+
+    .robot.mood-sad .robot-head {
+      animation: starPulse 4.4s ease-in-out infinite, sadPulse 2s ease-in-out infinite;
+      background:
+        radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.76) 0 8%, rgba(255, 255, 255, 0) 9%),
+        radial-gradient(circle at 70% 70%, rgba(99, 161, 231, 0.26) 0 22%, rgba(99, 161, 231, 0) 23%),
+        linear-gradient(180deg, #e4f3ff 0%, #b8dbff 48%, #8ec0f6 100%);
+      border-color: #7caedd;
+      filter: saturate(1.04);
+    }
+
+    .robot.mood-sad .mouth {
+      width: 26px;
+      height: 12px;
+      border-radius: 22px 22px 0 0;
+      border-top: 4px solid #637598;
+      border-left: 3px solid transparent;
+      border-right: 3px solid transparent;
+      border-bottom: none;
+      bottom: 35px;
+      background: transparent;
+    }
+
+    .robot.mood-sad .eye::before {
+      content: "";
+      position: absolute;
+      top: 16px;
+      left: 6px;
+      width: 12px;
+      height: 28px;
+      border-radius: 999px 999px 999px 999px / 70% 70% 100% 100%;
+      background: linear-gradient(180deg, rgba(214, 244, 255, 0.24) 0%, rgba(132, 208, 255, 0.98) 45%, rgba(65, 153, 235, 1) 100%);
+      box-shadow: 0 0 10px rgba(150, 212, 255, 0.52);
+      opacity: 0.96;
+      animation: tearFall 0.95s ease-in-out infinite;
+    }
+
+    .robot.mood-surprised .brow {
+      top: 29px;
+      opacity: 1;
+    }
+
+    .robot.mood-surprised .brow.left {
+      transform: rotate(30deg) translateX(4px) translateY(7px) scaleX(1.05);
+    }
+
+    .robot.mood-surprised .brow.right {
+      transform: rotate(-30deg) translateX(-4px) translateY(7px) scaleX(1.05);
+    }
+
+    .robot.mood-surprised .robot-head {
+      animation: starPulse 4.4s ease-in-out infinite, angryHeatPulse 0.78s ease-in-out infinite;
+      background:
+        radial-gradient(circle at 28% 22%, rgba(255, 246, 215, 0.48) 0 9%, rgba(255, 246, 215, 0) 10%),
+        radial-gradient(circle at 70% 68%, rgba(188, 32, 32, 0.42) 0 24%, rgba(188, 32, 32, 0) 25%),
+        linear-gradient(180deg, #ffd45c 0%, #ff8a45 40%, #c92e2e 100%);
+      border-color: #b93d30;
+      filter: saturate(1.3);
+    }
+
+    .robot.mood-surprised .mouth {
+      width: 28px;
+      height: 12px;
+      bottom: 35px;
+      border-bottom: none;
+      border-top: 5px solid #873a29;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-radius: 24px 24px 0 0;
+      background: transparent;
+    }
+
+    .robot.mood-overwhelmed .brow {
+      top: 29px;
+      opacity: 1;
+      width: 22px;
+      z-index: 8;
+    }
+
+    .robot.mood-overwhelmed .brow.left {
+      transform: rotate(34deg) translateX(5px) translateY(4px) scaleX(1.04);
+    }
+
+    .robot.mood-overwhelmed .brow.right {
+      transform: rotate(-34deg) translateX(-5px) translateY(4px) scaleX(1.04);
+    }
+
+    .robot.mood-overwhelmed .robot-head {
+      animation: starPulse 4.4s ease-in-out infinite, fullHeatGlow 0.95s ease-in-out infinite;
+      background:
+        radial-gradient(circle at 28% 18%, rgba(255, 232, 184, 0.46) 0 8%, rgba(255, 232, 184, 0) 9%),
+        radial-gradient(circle at 72% 72%, rgba(151, 0, 0, 0.34) 0 24%, rgba(151, 0, 0, 0) 25%),
+        linear-gradient(180deg, #ff8e68 0%, #ff433f 42%, #b30000 100%);
+      border-color: #9d1f17;
+      filter: saturate(1.48);
+    }
+
+    .robot.mood-overwhelmed .mouth {
+      width: 46px;
+      height: 24px;
+      bottom: 27px;
+      border-bottom: none;
+      border-top: 8px solid #5a130c;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-radius: 48px 48px 0 0;
+      background: transparent;
+      transform: translateX(-50%) scaleX(1.24);
+    }
+
+    .robot.mood-overwhelmed .eye {
+      top: 56px;
+      width: 19px;
+      height: 19px;
+      background:
+        radial-gradient(circle at 40% 28%, #ffffff 0 16%, #7f633a 17% 34%, #2e2416 35% 100%);
+      z-index: 7;
+      box-shadow:
+        inset 0 -2px 0 rgba(0, 0, 0, 0.14),
+        0 2px 8px rgba(92, 24, 24, 0.2);
+    }
+
+    .robot.mood-overwhelmed .eye::after {
+      top: 4px;
+      left: 4px;
+      width: 6px;
+      height: 6px;
+    }
+
+    .mouth {
+      position: absolute;
+      left: 50%;
+      bottom: 42px;
+      width: 24px;
+      height: 10px;
+      transform: translateX(-50%);
+      border-bottom: 4px solid #9a6c3b;
+      border-radius: 0 0 18px 18px;
+      opacity: 0.85;
+      transition: width 0.22s ease, height 0.22s ease, transform 0.22s ease, border 0.22s ease, border-radius 0.22s ease, bottom 0.22s ease;
+      z-index: 3;
+    }
+
+    #voiceAvatar .mouth::before,
+    #voiceAvatar .mouth::after {
+      content: none;
+    }
+
+    #voiceAvatar.voice-level-1 .mouth {
+      opacity: 0 !important;
+      border: none !important;
+      background: transparent !important;
+      width: 0 !important;
+      height: 0 !important;
+      transform: translateX(-50%) scale(0.2) !important;
+    }
+
+    #voiceAvatar.voice-level-2 .mouth {
+      width: 34px !important;
+      height: 10px !important;
+      bottom: 36px !important;
+      border: none !important;
+      border-radius: 999px !important;
+      clip-path: none !important;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          #ffffff 0 5px,
+          #a98a58 5px 8px
+        ) !important;
+      box-shadow:
+        0 0 0 2px rgba(159, 128, 77, 0.28),
+        inset 0 -1px 0 rgba(113, 86, 42, 0.2) !important;
+      transform: translateX(-50%) !important;
+      opacity: 1 !important;
+    }
+
+    #voiceAvatar.voice-level-2 .mouth::after {
+      content: "";
+      position: absolute;
+      right: -10px;
+      top: 0;
+      width: 11px;
+      height: 22px;
+      border-radius: 999px 999px 999px 999px / 65% 65% 100% 100%;
+      background: linear-gradient(180deg, #ffd4f0 0%, #d793d6 100%);
+      transform: rotate(-24deg);
+      box-shadow:
+        0 0 0 2px rgba(221, 172, 220, 0.26),
+        inset -1px -1px 0 rgba(145, 90, 138, 0.18);
+    }
+
+    #voiceAvatar.voice-level-3 .mouth {
+      width: 34px !important;
+      height: 15px !important;
+      bottom: 34px !important;
+      border: none !important;
+      border-bottom: 4px solid #9a6c3b !important;
+      border-left: 3px solid transparent !important;
+      border-right: 3px solid transparent !important;
+      border-radius: 0 0 24px 24px !important;
+      clip-path: none !important;
+      background: transparent !important;
+      transform: translateX(-50%) scaleX(1.12) !important;
+      opacity: 1 !important;
+    }
+
+    #voiceAvatar.voice-level-4 .mouth {
+      width: 16px !important;
+      height: 18px !important;
+      bottom: 36px !important;
+      border: 4px solid #8a3557 !important;
+      border-radius: 999px !important;
+      clip-path: none !important;
+      background: linear-gradient(180deg, #ff77b1 0%, #cb1d7c 100%) !important;
+      transform: translateX(-50%) !important;
+      opacity: 1 !important;
+    }
+
+    #voiceAvatar.voice-level-5 .mouth {
+      width: 24px !important;
+      height: 18px !important;
+      bottom: 36px !important;
+      border: 4px solid #8a3557 !important;
+      border-radius: 999px !important;
+      clip-path: none !important;
+      background: linear-gradient(180deg, #ff85c1 0%, #c30f73 100%) !important;
+      transform: translateX(-50%) !important;
+      opacity: 1 !important;
+      box-shadow: inset 0 -3px 0 rgba(89, 13, 52, 0.22) !important;
+    }
+
+    .ear {
+      display: none;
+    }
+
+    .ear.left {
+      left: -8px;
+      transform: rotate(18deg);
+      transform-origin: right center;
+      animation: earWiggleLeft 5.2s ease-in-out infinite;
+    }
+
+    .ear.right {
+      right: -8px;
+      transform: scaleX(-1) rotate(18deg);
+      transform-origin: left center;
+      animation: earWiggleRight 5.2s ease-in-out infinite;
+    }
+
+    .robot.mood-sad .ear,
+    .robot.mood-surprised .ear,
+    .robot.mood-overwhelmed .ear {
+      display: block;
+      position: absolute;
+      top: 20px;
+      width: 26px;
+      height: 54px;
+      background:
+        radial-gradient(circle at 50% 78%, rgba(255, 255, 255, 0.96) 0 20%, rgba(255, 255, 255, 0.75) 21% 38%, rgba(255, 255, 255, 0) 39%),
+        radial-gradient(circle at 42% 42%, rgba(255, 255, 255, 0.84) 0 22%, rgba(255, 255, 255, 0.34) 23% 40%, rgba(255, 255, 255, 0) 41%);
+      filter: blur(1px);
+      opacity: 0.88;
+      z-index: 6;
+      pointer-events: none;
+    }
+
+    .robot.mood-sad .ear.left,
+    .robot.mood-surprised .ear.left,
+    .robot.mood-overwhelmed .ear.left {
+      left: 20px;
+      animation: steamLeft 1s ease-out infinite;
+    }
+
+    .robot.mood-sad .ear.right,
+    .robot.mood-surprised .ear.right,
+    .robot.mood-overwhelmed .ear.right {
+      right: 20px;
+      animation: steamRight 1s ease-out infinite;
+    }
+
+    .robot.mood-overwhelmed .ear {
+      top: 10px;
+      width: 26px;
+      height: 58px;
+      opacity: 0.96;
+      filter: blur(1.4px);
+      z-index: 2;
+    }
+
+    .robot.mood-overwhelmed .ear::before,
+    .robot.mood-overwhelmed .ear::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 76%, rgba(255, 255, 255, 0.98) 0 18%, rgba(255, 255, 255, 0.82) 19% 38%, rgba(255, 255, 255, 0) 39%),
+        radial-gradient(circle at 44% 36%, rgba(255, 255, 255, 0.84) 0 18%, rgba(255, 255, 255, 0.2) 19% 40%, rgba(255, 255, 255, 0) 41%);
+      opacity: 0.88;
+    }
+
+    .robot.mood-overwhelmed .ear::before {
+      transform: translate(-7px, -8px) scale(0.82);
+    }
+
+    .robot.mood-overwhelmed .ear::after {
+      transform: translate(6px, -13px) scale(0.74);
+    }
+
+    .robot.mood-overwhelmed .ear.left {
+      left: 16px;
+      animation: steamBurstLeft 0.55s ease-out infinite;
+    }
+
+    .robot.mood-overwhelmed .ear.right {
+      right: 16px;
+      animation: steamBurstRight 0.55s ease-out infinite;
+    }
+
+    .robot-body,
+    .robot-panel {
+      display: none;
+    }
+
+    .arm,
+    .hand {
+      display: none;
+    }
+
+    .leg {
+      display: none;
+    }
+
+    .robot:hover,
+    .robot:focus-visible {
+      filter: drop-shadow(0 26px 38px rgba(218, 181, 88, 0.34));
+      transform: translateY(-4px) scale(1.03) rotate(-2deg);
+      outline: none;
+    }
+
+    .robot.is-listening .robot-head {
+      transform: rotate(-8deg) translateX(-2px) scale(1.02);
+    }
+
+    .robot.is-listening .brow.left {
+      transform: rotate(-20deg) translateY(-1px);
+    }
+
+    .robot.is-listening .brow.right {
+      transform: rotate(8deg) translateY(1px);
+    }
+
+    .robot.is-listening .mouth {
+      width: 14px;
+      height: 6px;
+    }
+
+    .robot.is-comforting .robot-head {
+      transform: rotate(6deg) translateX(2px) scale(0.99);
+    }
+
+    .robot.is-comforting .brow {
+      top: 40px;
+      opacity: 0.82;
+    }
+
+    .robot.is-comforting .brow.left {
+      transform: rotate(-4deg);
+    }
+
+    .robot.is-comforting .brow.right {
+      transform: rotate(4deg);
+    }
+
+    .robot.is-comforting .robot-body {
+      transform: none;
+    }
+
+    .robot.is-comforting .mouth {
+      width: 16px;
+    }
+
+    .robot.is-cheering {
+      transform: translateY(-9px) scale(1.05) rotate(-3deg);
+    }
+
+    .robot.is-cheering .robot-head {
+      transform: rotate(-6deg) scale(1.04);
+    }
+
+    .robot.is-cheering .brow.left {
+      transform: rotate(-24deg) translateY(-2px);
+    }
+
+    .robot.is-cheering .brow.right {
+      transform: rotate(24deg) translateY(-2px);
+    }
+
+    .robot.is-cheering .mouth {
+      width: 24px;
+      height: 10px;
+      border-bottom-width: 4px;
+      transform: scaleY(1.08);
+    }
+
+    .robot.is-booped .robot-head {
+      transform: rotate(-12deg) translateY(-3px) scale(1.03);
+    }
+
+    .robot.is-booped .brow.left {
+      transform: rotate(-28deg);
+    }
+
+    .robot.is-booped .brow.right {
+      transform: rotate(28deg);
+    }
+
+    .robot.is-booped .robot-body {
+      transform: none;
+    }
+
+    .robot.is-celebrating {
+      transform: translateY(-8px) scale(1.06);
+    }
+
+    .robot.is-celebrating .robot-head {
+      animation: starCelebrate 0.9s ease-in-out;
+    }
+
+    .robot.is-celebrating .brow.left {
+      transform: rotate(-30deg) translateY(-2px);
+    }
+
+    .robot.is-celebrating .brow.right {
+      transform: rotate(30deg) translateY(-2px);
+    }
+
+    .robot.is-celebrating .mouth {
+      width: 28px;
+      height: 12px;
+      border-bottom-width: 4px;
+    }
+
+    @keyframes starPulse {
+      0%, 100% {
+        transform: rotate(0deg) scale(1);
+        filter: brightness(1);
+      }
+      25% {
+        transform: rotate(-3deg) scale(1.02);
+        filter: brightness(1.04);
+      }
+      50% {
+        transform: rotate(2deg) scale(1.04);
+        filter: brightness(1.08);
+      }
+      75% {
+        transform: rotate(-2deg) scale(1.01);
+        filter: brightness(1.03);
+      }
+    }
+
+    @keyframes starCelebrate {
+      0% { transform: rotate(0deg) scale(1); }
+      15% { transform: rotate(-10deg) scale(1.05); }
+      30% { transform: rotate(12deg) scale(1.08); }
+      45% { transform: rotate(-9deg) scale(1.04); }
+      60% { transform: rotate(8deg) scale(1.07); }
+      75% { transform: rotate(-4deg) scale(1.03); }
+      100% { transform: rotate(0deg) scale(1); }
+    }
+
+    @keyframes heatGlow {
+      0%, 100% {
+        filter: saturate(1.04) brightness(1);
+      }
+      50% {
+        filter: saturate(1.16) brightness(1.08);
+      }
+    }
+
+    @keyframes fullHeatGlow {
+      0%, 100% {
+        filter: saturate(1.24) brightness(1.02);
+      }
+      50% {
+        filter: saturate(1.6) brightness(1.18);
+      }
+    }
+
+    @keyframes angryHeatPulse {
+      0%, 100% {
+        filter: saturate(1.06) brightness(0.98);
+      }
+      35% {
+        filter: saturate(1.24) brightness(1.08);
+      }
+      50% {
+        filter: saturate(1.38) brightness(1.16);
+      }
+      70% {
+        filter: saturate(1.18) brightness(1.02);
+      }
+    }
+
+    @keyframes sadPulse {
+      0%, 100% {
+        filter: saturate(1) brightness(1);
+      }
+      50% {
+        filter: saturate(1.08) brightness(1.05);
+      }
+    }
+
+    @keyframes sadShake {
+      0%, 100% {
+        transform: translateX(0);
+      }
+      25% {
+        transform: translateX(-2px);
+      }
+      50% {
+        transform: translateX(1px);
+      }
+      75% {
+        transform: translateX(-1px);
+      }
+    }
+
+    @keyframes tearFall {
+      0% {
+        transform: translateY(-2px) scaleY(0.78);
+        opacity: 0.4;
+      }
+      30% {
+        opacity: 0.98;
+      }
+      100% {
+        transform: translateY(16px) scaleY(1.16);
+        opacity: 0;
+      }
+    }
+
+    @keyframes steamLeft {
+      0% {
+        transform: translate(0, 0) scale(0.76);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.9;
+      }
+      100% {
+        transform: translate(-12px, -28px) scale(1.08);
+        opacity: 0;
+      }
+    }
+
+    @keyframes steamRight {
+      0% {
+        transform: translate(0, 0) scale(0.76);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.9;
+      }
+      100% {
+        transform: translate(12px, -28px) scale(1.08);
+        opacity: 0;
+      }
+    }
+
+    @keyframes steamBurstLeft {
+      0% {
+        transform: translate(0, 0) scale(0.68);
+        opacity: 0;
+      }
+      15% {
+        opacity: 0.98;
+      }
+      100% {
+        transform: translate(-18px, -34px) scale(1.14);
+        opacity: 0;
+      }
+    }
+
+    @keyframes steamBurstRight {
+      0% {
+        transform: translate(0, 0) scale(0.68);
+        opacity: 0;
+      }
+      15% {
+        opacity: 0.98;
+      }
+      100% {
+        transform: translate(18px, -34px) scale(1.14);
+        opacity: 0;
+      }
+    }
+
+    @keyframes robotFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes blink {
+      0%, 45%, 100% { transform: scaleY(1); }
+      48%, 52% { transform: scaleY(0.12); }
+    }
+
+    @keyframes cornerPeek {
+      0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+      20% { transform: translateY(-4px) rotate(-3deg) scale(1.01); }
+      50% { transform: translateY(-8px) rotate(2deg) scale(1.04); }
+      72% { transform: translateY(-3px) rotate(-1deg) scale(1.01); }
+    }
+
+    @keyframes earWiggleLeft {
+      0%, 100% { transform: rotate(-12deg); }
+      50% { transform: rotate(-18deg) translateY(1px); }
+    }
+
+    @keyframes earWiggleRight {
+      0%, 100% { transform: scaleX(-1) rotate(-12deg); }
+      50% { transform: scaleX(-1) rotate(-18deg) translateY(1px); }
+    }
+
+    @keyframes bushRustle {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(-1.5deg) scale(1.02); }
+    }
+
+    @keyframes peekGlow {
+      0%, 100% { opacity: 0.55; transform: scale(0.92); }
+      50% { opacity: 0.85; transform: scale(1.06); }
+    }
+
+    /* ---------- SHARED DETAIL SCREENS ---------- */
+
+    .top-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 20px;
+      position: relative;
+      min-height: 196px;
+      padding-right: 260px;
+    }
+
+    .back-btn {
+      border: none;
+      background: #dfe8fb;
+      color: #35508b;
+      border-radius: 999px;
+      padding: 14px 22px;
+      font: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 24px rgba(36, 56, 107, 0.08);
+      transition: transform var(--speed-fast) ease, box-shadow var(--speed-fast) ease, background var(--speed-fast) ease;
+    }
+
+    .back-btn:hover,
+    .back-btn:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(36, 56, 107, 0.12);
+      background: #d6e2fb;
+      outline: none;
+    }
+
+    .screen-title {
+      margin: 26px 0 8px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.05;
+      color: #223f76;
+      letter-spacing: 0.01em;
+    }
+
+    .screen-subtitle {
+      margin: 0 0 28px;
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      color: var(--muted);
+      font-weight: 600;
+      line-height: 1.5;
+      max-width: 640px;
+    }
+
+    .screen-helper {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 12px 28px rgba(36, 56, 107, 0.08);
+      color: #5d78b1;
+      font-size: 0.92rem;
+      font-weight: 800;
+    }
+
+    .screen-helper::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #f5cb57;
+      box-shadow: 0 0 0 6px rgba(245, 203, 87, 0.18);
+    }
+
+    .screen-robot-wrap {
+      position: absolute;
+      right: 18px;
+      bottom: -48px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+      width: 260px;
+      padding: 0;
+      z-index: 3;
+      pointer-events: auto;
+    }
+
+    .screen-robot-bubble {
+      background: var(--bubble-bg);
+      border: 2px solid var(--bubble-border);
+      color: #6481bb;
+      padding: 16px 20px;
+      border-radius: 28px;
+      box-shadow: var(--shadow-soft);
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.4;
+      max-width: 220px;
+      position: relative;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      margin-right: 86px;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .screen-robot-bubble::after {
+      content: "";
+      position: absolute;
+      top: 48px;
+      right: 16px;
+      width: 18px;
+      height: 18px;
+      background: var(--bubble-bg);
+      border-right: 2px solid var(--bubble-border);
+      border-bottom: 2px solid var(--bubble-border);
+      transform: rotate(45deg);
+    }
+
+    .screen-robot-wrap .robot.small {
+      position: relative;
+      width: 144px;
+      height: 126px;
+      right: 0;
+      margin-top: 0;
+      z-index: 4;
+      transform-origin: bottom center;
+      animation: cornerPeek 3.8s ease-in-out infinite;
+      pointer-events: auto;
+    }
+
+    .screen-robot-wrap .robot.small .leg.left,
+    .screen-robot-wrap .robot.small .leg.right {
+      opacity: 0;
+    }
+
+    .screen-robot-wrap .robot.small .robot-head {
+      top: 8px;
+      left: 14px;
+    }
+
+    .screen-robot-wrap .robot.small .robot-body {
+      display: none;
+    }
+
+    .screen-robot-wrap .robot.small .arm.left,
+    .screen-robot-wrap .robot.small .arm.right,
+    .screen-robot-wrap .robot.small .hand {
+      display: none;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(255, 255, 255, 0.92);
+      border-radius: 38px;
+      box-shadow: 0 26px 60px rgba(36, 56, 107, 0.12);
+      padding: 24px;
+      backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 2;
+      overflow: visible;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      top: -6px;
+      right: 18px;
+      width: 184px;
+      height: 28px;
+      border-radius: 20px 20px 0 0;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.92);
+      border-bottom: none;
+      box-shadow: 0 -10px 20px rgba(36, 56, 107, 0.05);
+      z-index: 6;
+    }
+
+    .panel::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 24px;
+      width: 170px;
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0));
+      z-index: 6;
+    }
+
+    .options-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .emotion-card {
+      width: 100%;
+      border: none;
+      border-radius: 28px;
+      padding: 22px 24px;
+      font: inherit;
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+      transition: transform var(--speed-fast) ease, box-shadow var(--speed-fast) ease, filter var(--speed-fast) ease, border-color var(--speed-fast) ease;
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.34),
+        0 10px 20px rgba(36, 56, 107, 0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .emotion-card:hover,
+    .emotion-card:focus-visible {
+      transform: translateY(-2px) scale(1.012);
+      box-shadow: 0 18px 32px rgba(36, 56, 107, 0.12);
+      filter: brightness(1.02);
+      outline: none;
+    }
+
+    .emotion-card.selected {
+      transform: translateY(-3px) scale(1.018);
+      box-shadow:
+        0 24px 40px rgba(36, 56, 107, 0.16),
+        0 0 0 5px rgba(255, 255, 255, 0.62),
+        0 0 0 10px rgba(124, 170, 255, 0.18);
+    }
+
+    .emotion-card.selected::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      border: 3px solid rgba(255, 255, 255, 0.62);
+      pointer-events: none;
+    }
+
+    .options-stack.has-active-selection .emotion-card:not(.selected),
+    .voice-options.has-active-selection .emotion-card:not(.selected) {
+      opacity: 0.78;
+      transform: scale(0.992);
+      filter: saturate(0.92);
+    }
+
+    .emotion-card-content {
+      display: grid;
+      grid-template-columns: 90px 1fr auto;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .emotion-left {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .emoji-badge {
+      width: 74px;
+      height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.35rem;
+      line-height: 1;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      filter: drop-shadow(0 6px 10px rgba(36, 56, 107, 0.1));
+    }
+
+    .emotion-main {
+      min-width: 0;
+    }
+
+    .emotion-title {
+      font-size: clamp(1.22rem, 2vw, 1.52rem);
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .emotion-subtitle {
+      font-size: clamp(0.98rem, 1.8vw, 1.08rem);
+      color: #6478aa;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .emotion-helper {
+      font-size: 0.95rem;
+      color: #6c7fab;
+      margin-top: 8px;
+      line-height: 1.35;
+    }
+
+    .helper-bubble {
+      background: rgba(255, 255, 255, 0.92);
+      color: #6481bb;
+      padding: 13px 18px;
+      border-radius: 22px;
+      box-shadow: 0 10px 26px rgba(36, 56, 107, 0.08);
+      font-size: 0.92rem;
+      font-weight: 700;
+      line-height: 1.3;
+      min-width: 164px;
+      text-align: center;
+      position: relative;
+      opacity: 0;
+      transform: translateX(8px) scale(0.96);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+
+    .helper-bubble::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -8px;
+      width: 14px;
+      height: 14px;
+      background: rgba(255, 255, 255, 0.92);
+      transform: translateY(-50%) rotate(45deg);
+    }
+
+    .emotion-card.selected .helper-bubble {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+
+    .selected-mark {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.7);
+      box-shadow: 0 10px 18px rgba(36, 56, 107, 0.12);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #3f5fa7;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity var(--speed-fast) ease, transform var(--speed-fast) ease;
+    }
+
+    .emotion-card.selected .selected-mark {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* ---------- DAILY ---------- */
+
+    .daily-1 { background: linear-gradient(90deg, #cfe8d1 0%, #c2e1c0 100%); }
+    .daily-2 { background: linear-gradient(90deg, #c9e2f8 0%, #bbd8f4 100%); }
+    .daily-3 { background: linear-gradient(90deg, #f6de8d 0%, #f0d576 100%); }
+    .daily-4 { background: linear-gradient(90deg, #f3a1ae 0%, #ee94a4 100%); }
+    .daily-5 { background: linear-gradient(90deg, #ff6471 0%, #ff5564 100%); }
+
+    /* ---------- CONTROL ---------- */
+
+    .control-1 { background: linear-gradient(90deg, #d3ead6 0%, #c5e2c6 100%); }
+    .control-2 { background: linear-gradient(90deg, #cfe4f8 0%, #c0d9f0 100%); }
+    .control-3 { background: linear-gradient(90deg, #f5df97 0%, #efd882 100%); }
+    .control-4 { background: linear-gradient(90deg, #f1a8b2 0%, #eb98a5 100%); }
+    .control-5 { background: linear-gradient(90deg, #ff6471 0%, #ff5564 100%); }
+
+    /* ---------- VOICE ---------- */
+
+    .voice-layout {
+      display: grid;
+      grid-template-columns: 116px 1fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .voice-meter-wrap {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+    }
+
+    .voice-meter {
+      width: 100%;
+      height: 100%;
+      min-height: 560px;
+      background: rgba(237, 242, 248, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 30px;
+      padding: 18px 14px 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        0 16px 28px rgba(34, 52, 96, 0.08);
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+    .voice-meter.has-selection {
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.7),
+        0 18px 34px rgba(34, 52, 96, 0.1),
+        0 0 0 6px rgba(124, 170, 255, 0.12);
+    }
+
+    .voice-meter-label {
+      font-size: 0.92rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: #6a7fb2;
+      background: rgba(255, 255, 255, 0.74);
+      border-radius: 999px;
+      padding: 6px 10px;
+      line-height: 1;
+    }
+
+    .meter-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .meter-bar {
+      width: 56px;
+      height: 18px;
+      border-radius: 999px;
+      opacity: 0.94;
+      transition: transform 0.28s ease, opacity 0.28s ease, filter 0.28s ease, box-shadow 0.28s ease;
+    }
+
+    .meter-red-1 { background: #ff3b4d; }
+    .meter-red-2 { background: #ff6767; }
+    .meter-salmon { background: #ff8a74; }
+    .meter-orange { background: #f8b665; }
+    .meter-yellow { background: #f1d766; }
+    .meter-lime { background: #cadc73; }
+    .meter-green { background: #b6d88d; }
+    .meter-grey { background: #d8dde6; }
+
+    .voice-meter.has-selection .meter-bar {
+      opacity: 0.35;
+      filter: saturate(0.72);
+    }
+
+    .voice-meter.has-selection .meter-bar.neutral {
+      opacity: 0.2;
+    }
+
+    .voice-meter[data-level="1"] .meter-bar.level-1,
+    .voice-meter[data-level="2"] .meter-bar.level-2,
+    .voice-meter[data-level="3"] .meter-bar.level-3,
+    .voice-meter[data-level="4"] .meter-bar.level-4,
+    .voice-meter[data-level="5"] .meter-bar.level-5 {
+      opacity: 1;
+      transform: scaleX(1.08);
+      filter: saturate(1.08);
+      box-shadow: 0 8px 16px rgba(50, 75, 132, 0.14);
+    }
+
+    .meter-slider-track {
+      position: absolute;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%);
+      width: 10px;
+      height: 176px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #d9e0ea 0%, #c9d3e2 100%);
+    }
+
+    .meter-slider-thumb {
+      position: absolute;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      width: 16px;
+      height: 60px;
+      border-radius: 999px;
+      background: #9cb1d0;
+      box-shadow: 0 8px 18px rgba(74, 104, 165, 0.22);
+      transition: bottom 0.35s ease, background-color 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .voice-options {
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 16px;
+    }
+
+    .voice-meter[data-level="1"] .meter-slider-thumb { background: #a3c97a; }
+    .voice-meter[data-level="2"] .meter-slider-thumb { background: #8fc2f0; }
+    .voice-meter[data-level="3"] .meter-slider-thumb { background: #efc95d; }
+    .voice-meter[data-level="4"] .meter-slider-thumb { background: #f2a2ad; }
+    .voice-meter[data-level="5"] .meter-slider-thumb { background: #ff6271; }
+
+    .voice-card-1 { background: linear-gradient(90deg, #d2ead8 0%, #c5e2c8 100%); }
+    .voice-card-2 { background: linear-gradient(90deg, #d0e8fb 0%, #c2ddf6 100%); }
+    .voice-card-3 { background: linear-gradient(90deg, #f6de92 0%, #efd378 100%); }
+    .voice-card-4 { background: linear-gradient(90deg, #f4aab6 0%, #ed9ca8 100%); }
+    .voice-card-5 { background: linear-gradient(90deg, #ff6471 0%, #ff5564 100%); }
+
+    .voice-card-5 .emotion-title,
+    .voice-card-5 .emotion-subtitle {
+      color: white;
+    }
+
+    /* ---------- PRAISE ---------- */
+
+    .praise-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(22, 35, 66, 0.24);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 60;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+
+    .praise-overlay.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .praise-box {
+      width: min(440px, 100%);
+      padding: 0 20px;
+      text-align: center;
+      transform: translateY(20px) scale(0.92);
+      opacity: 0;
+      transition: transform 0.35s ease, opacity 0.35s ease;
+    }
+
+    .praise-overlay.open .praise-box {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    .praise-star-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .praise-avatar-shell {
+      width: 360px;
+      height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(255, 250, 225, 0.92), rgba(255, 245, 210, 0.22) 42%, rgba(255, 255, 255, 0) 68%);
+    }
+
+    .praise-avatar-shell .robot {
+      width: 280px;
+      height: 258px;
+      filter: drop-shadow(0 32px 44px rgba(218, 181, 88, 0.36));
+      pointer-events: none;
+    }
+
+    .praise-avatar-shell .robot::before,
+    .praise-avatar-shell .robot::after {
+      content: "";
+      position: absolute;
+      top: 74px;
+      width: 40px;
+      height: 12px;
+      border-top: 8px solid #9a6c3b;
+      border-radius: 999px;
+      opacity: 0.95;
+      z-index: 7;
+      transition: transform 0.22s ease, top 0.22s ease, opacity 0.22s ease;
+    }
+
+    .praise-avatar-shell .robot::before {
+      left: 86px;
+      transform: rotate(-12deg);
+    }
+
+    .praise-avatar-shell .robot::after {
+      right: 86px;
+      transform: rotate(12deg);
+    }
+
+    .praise-overlay.open .praise-avatar-shell .robot {
+      animation: robotFloat 2.6s ease-in-out infinite;
+    }
+
+    .praise-avatar-shell .robot-head {
+      top: 22px;
+      left: 30px;
+      width: 220px;
+      height: 220px;
+    }
+
+    .praise-avatar-shell .robot-face::before {
+      top: 36px;
+      left: 60px;
+      width: 92px;
+      height: 24px;
+    }
+
+    .praise-avatar-shell .robot-face::after {
+      top: 106px;
+      width: 22px;
+      height: 16px;
+    }
+
+    .praise-avatar-shell .eye {
+      top: 80px;
+      width: 32px;
+      height: 34px;
+    }
+
+    .praise-avatar-shell .eye.left {
+      left: 66px;
+    }
+
+    .praise-avatar-shell .eye.right {
+      right: 66px;
+    }
+
+    .praise-avatar-shell .brow {
+      display: none;
+    }
+
+    .praise-avatar-shell .mouth {
+      bottom: 68px;
+      width: 40px;
+      height: 16px;
+      border-bottom-width: 5px;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      border-radius: 0 0 26px 26px;
+    }
+
+    #praiseAvatar .mouth::before,
+    #praiseAvatar .mouth::after {
+      content: none;
+    }
+
+    #praiseAvatar.voice-level-1 .mouth {
+      opacity: 0 !important;
+      border: none !important;
+      background: transparent !important;
+      width: 0 !important;
+      height: 0 !important;
+      transform: translateX(-50%) scale(0.2) !important;
+    }
+
+    #praiseAvatar.voice-level-2 .mouth {
+      width: 54px !important;
+      height: 14px !important;
+      bottom: 60px !important;
+      border: none !important;
+      border-radius: 999px !important;
+      clip-path: none !important;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          #ffffff 0 8px,
+          #a98a58 8px 12px
+        ) !important;
+      box-shadow:
+        0 0 0 3px rgba(159, 128, 77, 0.24),
+        inset 0 -1px 0 rgba(113, 86, 42, 0.2) !important;
+      transform: translateX(-50%) !important;
+      opacity: 1 !important;
+    }
+
+    #praiseAvatar.voice-level-2 .mouth::after {
+      content: "" !important;
+      position: absolute;
+      right: -14px;
+      top: -1px;
+      width: 16px;
+      height: 30px;
+      border-radius: 999px 999px 999px 999px / 65% 65% 100% 100%;
+      background: linear-gradient(180deg, #ffd4f0 0%, #d793d6 100%);
+      transform: rotate(-24deg);
+      box-shadow:
+        0 0 0 3px rgba(221, 172, 220, 0.24),
+        inset -1px -1px 0 rgba(145, 90, 138, 0.18);
+    }
+
+    #praiseAvatar.voice-level-3 .mouth {
+      width: 40px !important;
+      height: 16px !important;
+      bottom: 68px !important;
+      border: none !important;
+      border-bottom: 5px solid #9a6c3b !important;
+      border-left: 4px solid transparent !important;
+      border-right: 4px solid transparent !important;
+      border-radius: 0 0 26px 26px !important;
+      clip-path: none !important;
+      background: transparent !important;
+      transform: translateX(-50%) scaleX(1.12) !important;
+      opacity: 1 !important;
+    }
+
+    #praiseAvatar.voice-level-4 .mouth {
+      width: 22px !important;
+      height: 28px !important;
+      bottom: 58px !important;
+      border: 5px solid #8a3557 !important;
+      border-radius: 999px !important;
+      clip-path: none !important;
+      background: linear-gradient(180deg, #ff77b1 0%, #cb1d7c 100%) !important;
+      transform: translateX(-50%) !important;
+      opacity: 1 !important;
+    }
+
+    #praiseAvatar.voice-level-5 .mouth {
+      width: 30px !important;
+      height: 28px !important;
+      bottom: 58px !important;
+      border: 5px solid #8a3557 !important;
+      border-radius: 999px !important;
+      clip-path: none !important;
+      background: linear-gradient(180deg, #ff85c1 0%, #c30f73 100%) !important;
+      transform: translateX(-50%) !important;
+      opacity: 1 !important;
+      box-shadow: inset 0 -4px 0 rgba(89, 13, 52, 0.22) !important;
+    }
+
+    .praise-avatar-shell .robot.mood-happy .mouth {
+      bottom: 68px;
+    }
+
+    .praise-avatar-shell .robot.mood-calm .mouth {
+      width: 34px;
+      height: 14px;
+      bottom: 62px;
+      border: none;
+      border-radius: 0;
+      background: #9a6c3b;
+      clip-path: polygon(0 42%, 12% 18%, 24% 58%, 36% 22%, 48% 64%, 60% 26%, 72% 68%, 84% 30%, 100% 48%, 100% 72%, 84% 54%, 72% 92%, 60% 46%, 48% 84%, 36% 40%, 24% 78%, 12% 38%, 0 66%);
+      opacity: 0.95;
+      transform: translateX(-50%);
+    }
+
+    .praise-avatar-shell .robot.mood-sad::before {
+      top: 66px;
+      transform: rotate(16deg) translateX(4px) translateY(8px);
+      opacity: 0.96;
+    }
+
+    .praise-avatar-shell .robot.mood-sad::after {
+      top: 66px;
+      transform: rotate(-16deg) translateX(-4px) translateY(8px);
+      opacity: 0.96;
+    }
+
+    .praise-avatar-shell .robot.mood-sad .mouth {
+      width: 40px;
+      height: 18px;
+      bottom: 58px;
+      border-top: 6px solid #637598;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-bottom: none;
+      border-radius: 28px 28px 0 0;
+      background: transparent;
+      transform: translateX(-50%);
+    }
+
+    .praise-avatar-shell .robot.mood-sad .eye::before {
+      top: 24px;
+      left: 8px;
+      width: 16px;
+      height: 38px;
+    }
+
+    .praise-avatar-shell .robot.mood-worried .mouth {
+      bottom: 64px;
+    }
+
+    .praise-overlay.open .praise-avatar-shell .robot.mood-sad {
+      animation: robotFloat 2.6s ease-in-out infinite, sadShake 1.2s ease-in-out infinite;
+    }
+
+    .praise-avatar-shell .robot.mood-surprised .mouth,
+    .praise-avatar-shell .robot.mood-overwhelmed .mouth {
+      bottom: 60px;
+    }
+
+    .praise-avatar-shell .robot.mood-happy::before {
+      transform: rotate(-24deg) translateY(-3px);
+    }
+
+    .praise-avatar-shell .robot.mood-happy::after {
+      transform: rotate(24deg) translateY(-3px);
+    }
+
+    .praise-avatar-shell .robot.mood-calm::before {
+      transform: rotate(-6deg);
+    }
+
+    .praise-avatar-shell .robot.mood-calm::after {
+      transform: rotate(6deg);
+    }
+
+    .praise-avatar-shell .robot.mood-worried::before {
+      top: 78px;
+      transform: rotate(-18deg) translateX(3px);
+    }
+
+    .praise-avatar-shell .robot.mood-worried::after {
+      top: 78px;
+      transform: rotate(18deg) translateX(-3px);
+    }
+
+    .praise-avatar-shell .robot.mood-sad::before {
+      top: 80px;
+      transform: rotate(-4deg);
+      opacity: 0.88;
+    }
+
+    .praise-avatar-shell .robot.mood-sad::after {
+      top: 80px;
+      transform: rotate(4deg);
+      opacity: 0.88;
+    }
+
+    .praise-avatar-shell .robot.mood-surprised::before {
+      transform: rotate(-6deg) translateY(-5px);
+    }
+
+    .praise-avatar-shell .robot.mood-surprised::after {
+      transform: rotate(6deg) translateY(-5px);
+    }
+
+    .praise-avatar-shell .robot.mood-overwhelmed::before {
+      top: 74px;
+      width: 34px;
+      transform: rotate(26deg) translateX(2px) translateY(2px) scaleX(1);
+    }
+
+    .praise-avatar-shell .robot.mood-overwhelmed::after {
+      top: 74px;
+      width: 34px;
+      transform: rotate(-26deg) translateX(-2px) translateY(2px) scaleX(1);
+    }
+
+    .praise-avatar-shell .robot.mood-overwhelmed .eye {
+      top: 88px;
+      width: 28px;
+      height: 28px;
+      z-index: 7;
+      background:
+        radial-gradient(circle at 40% 28%, #ffffff 0 16%, #7f633a 17% 34%, #2e2416 35% 100%);
+      box-shadow:
+        inset 0 -2px 0 rgba(0, 0, 0, 0.14),
+        0 2px 8px rgba(92, 24, 24, 0.18);
+    }
+
+    .praise-avatar-shell .robot.mood-overwhelmed .eye.left {
+      left: 70px;
+    }
+
+    .praise-avatar-shell .robot.mood-overwhelmed .eye.right {
+      right: 70px;
+    }
+
+    .praise-avatar-shell .robot.mood-overwhelmed .eye::after {
+      top: 5px;
+      left: 5px;
+      width: 6px;
+      height: 6px;
+    }
+
+    .praise-avatar-shell .robot.mood-overwhelmed .mouth {
+      width: 54px;
+      height: 24px;
+      bottom: 50px;
+      border-top: 9px solid #682114;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-bottom: none;
+      border-radius: 42px 42px 0 0;
+      background: transparent;
+      transform: translateX(-50%) scaleX(1.2);
+    }
+
+    .praise-message {
+      max-width: 320px;
+      padding: 0;
+    }
+
+    .praise-title {
+      margin: 0 0 8px;
+      font-size: 2rem;
+      color: #ffffff;
+      text-shadow: 0 8px 20px rgba(40, 62, 112, 0.28);
+    }
+
+    .praise-text {
+      margin: 0;
+      font-size: 1.02rem;
+      color: rgba(255, 255, 255, 0.96);
+      line-height: 1.45;
+      text-shadow: 0 6px 16px rgba(40, 62, 112, 0.24);
+    }
+
+    /* ---------- CONFETTI ---------- */
+
+    .confetti-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 70;
+    }
+
+    /* ---------- RESPONSIVE ---------- */
+
+    @media (max-width: 980px) {
+      .home-hero {
+        gap: 20px;
+      }
+
+      .hero-copy {
+        max-width: 560px;
+      }
+
+      .robot-cluster,
+      .screen-robot-wrap {
+        position: static;
+        justify-content: center;
+        margin-bottom: 14px;
+      }
+
+      .top-row {
+        min-height: auto;
+        padding-right: 0;
+      }
+
+      .screen-robot-wrap {
+        width: auto;
+        padding: 0;
+        align-items: center;
+      }
+
+      .panel::before,
+      .panel::after {
+        display: none;
+      }
+
+      .screen-robot-wrap::before,
+      .screen-robot-wrap::after {
+        display: none;
+      }
+
+      .screen-robot-wrap .robot.small {
+        width: 126px;
+        height: 166px;
+        right: 0;
+        margin-top: 0;
+        animation: robotFloat 3s ease-in-out infinite;
+      }
+
+      .screen-robot-wrap .robot.small .robot-head {
+        top: 16px;
+        left: 22px;
+      }
+
+      .screen-robot-wrap .robot.small .robot-body,
+      .screen-robot-wrap .robot.small .arm.left,
+      .screen-robot-wrap .robot.small .leg.left,
+      .screen-robot-wrap .robot.small .leg.right {
+        opacity: 1;
+      }
+
+      .screen-robot-wrap .robot.small .arm.left {
+        top: 102px;
+        left: 18px;
+        height: 54px;
+        transform: rotate(30deg);
+        animation: none;
+      }
+
+      .screen-robot-wrap .robot.small .arm.right {
+        top: 102px;
+        right: 18px;
+        height: 54px;
+        opacity: 1;
+        transform: rotate(-28deg);
+        animation: waveArmCool 1.4s ease-in-out infinite;
+      }
+
+      .screen-robot-bubble {
+        max-width: 270px;
+        margin-right: 0;
+      }
+
+      .screen-robot-bubble::after {
+        top: 34px;
+        right: -10px;
+        border-top: 2px solid var(--bubble-border);
+        border-right: 2px solid var(--bubble-border);
+        border-bottom: none;
+      }
+
+      .home-title {
+        padding-top: 0;
+      }
+
+      .tool-grid {
+        grid-template-columns: 1fr;
+        max-width: 520px;
+      }
+
+      .tool-card {
+        min-height: 320px;
+      }
+
+      .top-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .emotion-card-content {
+        grid-template-columns: 78px 1fr;
+      }
+
+      .helper-bubble {
+        grid-column: 1 / -1;
+        justify-self: start;
+        margin-top: 10px;
+      }
+
+      .voice-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .voice-meter-wrap {
+        order: 2;
+      }
+
+      .voice-meter {
+        min-height: auto;
+        height: auto;
+        gap: 14px;
+        padding-bottom: 18px;
+      }
+
+      .meter-bars {
+        flex-direction: row-reverse;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .meter-slider-track,
+      .meter-slider-thumb {
+        display: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .screen {
+        padding: 18px 14px 28px;
+      }
+
+      .home-wrap {
+        padding-bottom: 20px;
+      }
+
+      .robot-cluster,
+      .screen-robot-wrap {
+        align-items: center;
+      }
+
+      .screen-robot-wrap {
+        flex-direction: column-reverse;
+      }
+
+      .hero-kicker {
+        font-size: 0.76rem;
+        padding: 9px 14px;
+      }
+
+      .home-subtitle {
+        margin-bottom: 12px;
+        font-size: 0.98rem;
+      }
+
+      .robot-bubble,
+      .screen-robot-bubble {
+        max-width: 220px;
+        font-size: 0.92rem;
+        text-align: center;
+      }
+
+      .robot-bubble::before {
+        height: 22px;
+        bottom: -22px;
+      }
+
+      .robot-bubble::after {
+        bottom: -31px;
+      }
+
+      .screen-robot-bubble::after {
+        top: auto;
+        right: 50%;
+        bottom: -10px;
+        transform: translateX(50%) rotate(135deg);
+      }
+
+      .robot-bubble::after {
+        left: 50%;
+      }
+
+      .home-title,
+      .screen-title {
+        font-size: 2.3rem;
+      }
+
+      .tool-card {
+        min-height: 292px;
+        padding: 24px 20px 18px;
+      }
+
+      .tool-label-main {
+        font-size: 1.55rem;
+      }
+
+      .tool-label-sub {
+        font-size: 0.9rem;
+      }
+
+      .rainbow-left,
+      .hill-right,
+      .cloud-left,
+      .cloud-right {
+        transform: scale(0.8);
+        transform-origin: bottom;
+      }
+
+      .emotion-card {
+        padding: 16px 16px 18px;
+      }
+
+      .emotion-card-content {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .emotion-left {
+        justify-content: flex-start;
+      }
+
+      .helper-bubble {
+        min-width: 0;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+
+    <!-- HOME -->
+    <section class="screen active" id="homeScreen">
+      <div class="screen-inner home-wrap">
+        <div class="home-bg-decor" aria-hidden="true">
+          <div class="glow-floor"></div>
+
+          <div class="rainbow-left"></div>
+          <div class="cloud cloud-left"></div>
+          <div class="cloud cloud-right"></div>
+          <div class="hill-right"></div>
+
+          <div class="stars">
+            <span class="star" style="left: 14%; top: 33%; transform: rotate(45deg) scale(0.7);"></span>
+            <span class="star" style="left: 17%; top: 29%; transform: rotate(45deg) scale(0.45);"></span>
+            <span class="star" style="left: 19%; top: 40%; transform: rotate(45deg) scale(0.5);"></span>
+            <span class="star" style="left: 77%; top: 37%; transform: rotate(45deg) scale(0.72);"></span>
+            <span class="star" style="left: 82%; top: 47%; transform: rotate(45deg) scale(0.5);"></span>
+            <span class="star" style="left: 87%; top: 55%; transform: rotate(45deg) scale(0.4);"></span>
+            <span class="star" style="left: 69%; top: 41%; transform: rotate(45deg) scale(0.45);"></span>
+
+            <span class="sparkle" style="left: 10%; top: 70%;"></span>
+            <span class="sparkle" style="left: 20%; top: 74%;"></span>
+            <span class="sparkle" style="left: 86%; top: 72%;"></span>
+            <span class="sparkle" style="left: 90%; top: 68%;"></span>
+          </div>
+        </div>
+
+        <div class="home-hero">
+          <div class="hero-copy">
+            <div class="hero-kicker">Feeling Check-In</div>
+            <h1 class="home-title">How Are You Feeling Today?</h1>
+            <p class="home-subtitle">Pick the tool that matches what you want to share. Your star buddy will stay with you and help you through each step.</p>
+          </div>
+
+          <div class="robot-cluster" aria-hidden="true">
+            <div class="robot-bubble" id="homeRobotBubble">I'm here to help you check in.</div>
+
+            <div class="robot interactive-avatar" id="homeAvatar" data-avatar="home">
+              <div class="antenna"></div>
+              <div class="antenna-ball"></div>
+
+              <div class="robot-head">
+                <div class="ear left"></div>
+                <div class="ear right"></div>
+                <div class="robot-face">
+                  <div class="brow left"></div>
+                  <div class="brow right"></div>
+                  <div class="eye left"></div>
+                  <div class="eye right"></div>
+                  <div class="mouth"></div>
+                </div>
+              </div>
+
+              <div class="arm left"><div class="hand"></div></div>
+              <div class="arm right"><div class="hand"></div></div>
+
+              <div class="robot-body">
+                <div class="robot-panel"></div>
+              </div>
+
+              <div class="leg left"></div>
+              <div class="leg right"></div>
+            </div>
+          </div>
+
+          
+        </div>
+
+        <div class="tool-grid">
+          <button class="tool-card tool-daily" onclick="showScreen('dailyScreen')">
+            <div class="tool-icon">😊</div>
+
+            <div class="tool-label">
+              <span class="tool-label-main">Daily Check In</span>
+              <span class="tool-label-sub">Share how your day feels with simple feeling choices.</span>
+            </div>
+
+            <div class="tool-pill">
+              <div class="tool-pill-icon">😊</div>
+              <div class="tool-pill-text">
+                Start Check In
+                <span class="tool-pill-sub">Tap to begin</span>
+              </div>
+            </div>
+          </button>
+
+          <button class="tool-card tool-control" onclick="showScreen('controlScreen')">
+            <div class="tool-icon">🎚️</div>
+
+            <div class="tool-label">
+              <span class="tool-label-main">Control Scale</span>
+              <span class="tool-label-sub">Show how calm, wiggly, or overwhelmed your body feels.</span>
+            </div>
+
+            <div class="tool-pill">
+              <div class="tool-pill-icon">🎚️</div>
+              <div class="tool-pill-text">
+                Explore Body Feelings
+                <span class="tool-pill-sub">Tap to begin</span>
+              </div>
+            </div>
+          </button>
+
+          <button class="tool-card tool-voice" onclick="showScreen('voiceScreen')">
+            <div class="tool-icon">🔊</div>
+
+            <div class="tool-label">
+              <span class="tool-label-main">Voice Volume Scale</span>
+              <span class="tool-label-sub">Pick the picture that matches how loud your voice feels.</span>
+            </div>
+
+            <div class="tool-pill">
+              <div class="tool-pill-icon">🔊</div>
+              <div class="tool-pill-text">
+                Start Voice Check
+                <span class="tool-pill-sub">Tap to begin</span>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <div class="home-dots" aria-hidden="true">
+          <span class="home-dot dot-green"></span>
+          <span class="home-dot dot-yellow"></span>
+          <span class="home-dot dot-blue"></span>
+          <span class="home-dot dot-cream"></span>
+        </div>
+
+        <div class="home-status" id="homeStatus">Choose one tool to begin.</div>
+      </div>
+    </section>
+
+    <!-- DAILY -->
+    <section class="screen" id="dailyScreen">
+      <div class="screen-inner">
+        <div class="top-row">
+          <div>
+            <button class="back-btn" onclick="showScreen('homeScreen')">&larr; Back</button>
+            <h1 class="screen-title">Daily Check In</h1>
+            <p class="screen-subtitle">Choose the picture that fits best right now. There is no wrong answer.</p>
+            <div class="screen-helper">Tap one feeling to let us know how your day feels.</div>
+          </div>
+
+          <div class="screen-robot-wrap" aria-hidden="true">
+            <div class="screen-robot-bubble" id="dailyRobotBubble">Which picture fits how you feel?</div>
+
+            <div class="robot small interactive-avatar" id="dailyAvatar" data-avatar="daily">
+              <div class="antenna"></div>
+              <div class="antenna-ball"></div>
+              <div class="robot-head">
+                <div class="ear left"></div>
+                <div class="ear right"></div>
+                <div class="robot-face">
+                  <div class="brow left"></div>
+                  <div class="brow right"></div>
+                  <div class="eye left"></div>
+                  <div class="eye right"></div>
+                  <div class="mouth"></div>
+                </div>
+              </div>
+              <div class="arm left"><div class="hand"></div></div>
+              <div class="arm right"><div class="hand"></div></div>
+              <div class="robot-body"><div class="robot-panel"></div></div>
+              <div class="leg left"></div>
+              <div class="leg right"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="options-stack">
+            <button class="emotion-card daily-5 selectable" data-group="daily" data-message="Thank you for telling me. Let's take it one step at a time." data-praise="You did a great job telling us how you feel!">
+              <span class="selected-mark">✓</span>
+              <div class="emotion-card-content">
+                <div class="emotion-left">
+                  <div class="emoji-badge">😡</div>
+                </div>
+                <div class="emotion-main">
+                  <div class="emotion-title">5 Too Mad, Sick</div>
+                  <div class="emotion-subtitle">Need a walk</div>
+                </div>
+              </div>
+            </button>
+
+            <button class="emotion-card daily-4 selectable" data-group="daily" data-message="It's OK to need some quiet time." data-praise="Thank you for sharing your feelings. Great job!">
+              <span class="selected-mark">✓</span>
+              <div class="emotion-card-content">
+                <div class="emotion-left">
+                  <div class="emoji-badge">😢</div>
+                </div>
+                <div class="emotion-main">
+                  <div class="emotion-title">4 Very Sad</div>
+                  <div class="emotion-subtitle">Need some quiet time</div>
+                </div>
+              </div>
+            </button>
+
+            <button class="emotion-card daily-3 selectable" data-group="daily" data-message="I'm here to help. You are not alone." data-praise="Good job checking in. You are doing well!">
+              <span class="selected-mark">✓</span>
+              <div class="emotion-card-content">
+                <div class="emotion-left">
+                  <div class="emoji-badge">😟</div>
+                </div>
+                <div class="emotion-main">
+                  <div class="emotion-title">3 Nervous, Scared, Irritated</div>
+                  <div class="emotion-subtitle">Tired, Need help</div>
+                </div>
+              </div>
+            </button>
+
+            <button class="emotion-card daily-2 selectable" data-group="daily" data-message="Thank you for checking in with me." data-praise="Nice work sharing how you feel!">
+              <span class="selected-mark">✓</span>
+              <div class="emotion-card-content">
+                <div class="emotion-left">
+                  <div class="emoji-badge">😖</div>
+                </div>
+                <div class="emotion-main">
+                  <div class="emotion-title">2 OK, Little Uncomfortable</div>
+                  <div class="emotion-subtitle">Need some quiet time</div>
+                </div>
+              </div>
+            </button>
+
+            <button class="emotion-card daily-1 selectable" data-group="daily" data-message="That is wonderful. Keep smiling!" data-praise="Awesome job! Thank you for telling us!">
+              <span class="selected-mark">✓</span>
+              <div class="emotion-card-content">
+                <div class="emotion-left">
+                  <div class="emoji-badge">😁</div>
+                </div>
+                <div class="emotion-main">
+                  <div class="emotion-title">1 Great, Happy</div>
+                  <div class="emotion-subtitle">No worries</div>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTROL -->
+    <section class="screen" id="controlScreen">
+      <div class="screen-inner">
+        <div class="top-row">
+          <div>
+            <button class="back-btn" onclick="showScreen('homeScreen')">&larr; Back</button>
+            <h1 class="screen-title" style="margin-top: 0;">Control Scale</h1>
+            <p class="screen-subtitle">Choose the box that feels closest right now. You can take your time.</p>
+            <div class="screen-helper">Pick one body-feeling level and your star buddy will respond with support.</div>
+          </div>
+
+          <div class="screen-robot-wrap" aria-hidden="true">
+            <div class="screen-robot-bubble" id="controlRobotBubble">It's OK to feel this way.</div>
+
+            <div class="robot small interactive-avatar mood-happy" id="controlAvatar" data-avatar="control">
+              <div class="antenna"></div>
+              <div class="antenna-ball"></div>
+              <div class="robot-head">
+                <div class="ear left"></div>
+                <div class="ear right"></div>
+                <div class="robot-face">
+                  <div class="brow left"></div>
+                  <div class="brow right"></div>
+                  <div class="eye left"></div>
+                  <div class="eye right"></div>
+                  <div class="mouth"></div>
+                </div>
+              </div>
+              <div class="arm left"><div class="hand"></div></div>
+              <div class="arm right"><div class="hand"></div></div>
+              <div class="robot-body"><div class="robot-panel"></div></div>
+              <div class="leg left"></div>
+              <div class="leg right"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="options-stack">
+            <button class="emotion-card control-5 selectable" data-group="control" data-message="Let's take a break." data-praise="Great job telling us what your body is feeling!">
+              <span class="selected-mark">✓</span>
+              <div class="emotion-card-content">
+                <div class="emotion-left">
+                  <div class="emoji-badge">🤯</div>
+                </div>
+                <div class="emotion-main">
+                  <div class="emotion-title">5 Explosion, Too Mad</div>
+                  <div class="emotion-subtitle">Very out of control</div>
+                  <div class="emotion-helper">Let's take a break.</div>
+                </div>
+                <div class="helper-bubble">Let's take a break.</div>
+              </div>
+            </button>
+
+            <button class="emotion-card control-4 selectable" data-group="control" data-message="Let's try to calm down." data-praise="You shared your feelings really well. Good job!">
+              <span class="selected-mark">✓</span>
+              <div class="emotion-card-content">
+                <div class="emotion-left">
+                  <div class="emoji-badge">😤</div>
+                </div>
+                <div class="emotion-main">
+                  <div class="emotion-title">4 Mad, Angry, Loud</div>
+                  <div class="emotion-subtitle">Big feelings</div>
+                  <div class="emotion-helper">Let's try to calm down.</div>
+                </div>
+                <div class="helper-bubble">Let's try to calm down.</div>
+              </div>
+            </button>
+
+            <button class="emotion-card control-3 selectable" data-group="control" data-message="I'm here for you." data-praise="Thank you for checking in. Great work!">
+              <span class="selected-mark">✓</span>
+              <div class="emotion-card-content">
+                <div class="emotion-left">
+                  <div class="emoji-badge">😟</div>
+                </div>
+                <div class="emotion-main">
+                  <div class="emotion-title">3 Nervous, Worried</div>
+                  <div class="emotion-subtitle">Starting to feel uneasy</div>
+                  <div class="emotion-helper">I'm here for you.</div>
+                </div>
+                <div class="helper-bubble">I'm here for you.</div>
+              </div>
+            </button>
+
+            <button class="emotion-card control-2 selectable" data-group="control" data-message="We can work on this." data-praise="Nice job sharing your emotions!">
+              <span class="selected-mark">✓</span>
+              <div class="emotion-card-content">
+                <div class="emotion-left">
+                  <div class="emoji-badge">😕</div>
+                </div>
+                <div class="emotion-main">
+                  <div class="emotion-title">2 OK, Little Uncomfortable</div>
+                  <div class="emotion-subtitle">Needs a little support</div>
+                </div>
+                <div class="helper-bubble">We can work on this.</div>
+              </div>
+            </button>
+
+            <button class="emotion-card control-1 selectable" data-group="control" data-message="Keep it up!" data-praise="Wonderful job! You checked in successfully!">
+              <span class="selected-mark">✓</span>
+              <div class="emotion-card-content">
+                <div class="emotion-left">
+                  <div class="emoji-badge">😌</div>
+                </div>
+                <div class="emotion-main">
+                  <div class="emotion-title">1 Calm, Restful</div>
+                  <div class="emotion-subtitle">Feeling settled</div>
+                </div>
+                <div class="helper-bubble">Keep it up!</div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VOICE -->
+    <section class="screen" id="voiceScreen">
+      <div class="screen-inner">
+        <div class="top-row">
+          <div>
+            <button class="back-btn" onclick="showScreen('homeScreen')">&larr; Back</button>
+            <h1 class="screen-title">Voice Volume Scale</h1>
+            <p class="screen-subtitle">Pick the voice level that sounds most like you right now.</p>
+            <div class="screen-helper">Choose one voice level and the meter will move to match it.</div>
+          </div>
+
+          <div class="screen-robot-wrap" aria-hidden="true">
+            <div class="screen-robot-bubble" id="voiceRobotBubble">Let's listen for the voice that fits best.</div>
+
+            <div class="robot small interactive-avatar" id="voiceAvatar" data-avatar="voice">
+              <div class="antenna"></div>
+              <div class="antenna-ball"></div>
+              <div class="robot-head">
+                <div class="ear left"></div>
+                <div class="ear right"></div>
+                <div class="robot-face">
+                  <div class="brow left"></div>
+                  <div class="brow right"></div>
+                  <div class="eye left"></div>
+                  <div class="eye right"></div>
+                  <div class="mouth"></div>
+                </div>
+              </div>
+              <div class="arm left"><div class="hand"></div></div>
+              <div class="arm right"><div class="hand"></div></div>
+              <div class="robot-body"><div class="robot-panel"></div></div>
+              <div class="leg left"></div>
+              <div class="leg right"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="voice-layout">
+            <div class="voice-meter-wrap">
+              <div class="voice-meter" id="voiceMeter" data-level="0">
+                <div class="voice-meter-label meter-label-top">Loud</div>
+                <div class="meter-bars">
+                  <div class="meter-bar meter-grey neutral"></div>
+                  <div class="meter-bar meter-grey neutral"></div>
+                  <div class="meter-bar meter-grey neutral"></div>
+                  <div class="meter-bar meter-red-1 level-5"></div>
+                  <div class="meter-bar meter-red-2 level-5"></div>
+                  <div class="meter-bar meter-salmon level-4"></div>
+                  <div class="meter-bar meter-orange level-4"></div>
+                  <div class="meter-bar meter-yellow level-3"></div>
+                  <div class="meter-bar meter-lime level-2"></div>
+                  <div class="meter-bar meter-green level-1"></div>
+                  <div class="meter-bar meter-grey neutral"></div>
+                  <div class="meter-bar meter-grey neutral"></div>
+                </div>
+
+                <div class="meter-slider-track"></div>
+                <div class="meter-slider-thumb" id="meterThumb"></div>
+                <div class="voice-meter-label meter-label-bottom">Quiet</div>
+              </div>
+            </div>
+
+            <div class="voice-options">
+              <button class="emotion-card voice-card-1 selectable" data-group="voice" data-meter="18" data-message="This sounds like a quiet no-talking space." data-praise="Amazing job! Thank you for letting us know!">
+                <span class="selected-mark">✓</span>
+                <div class="emotion-card-content">
+                  <div class="emotion-left">
+                    <div class="emoji-badge">😶</div>
+                  </div>
+                  <div class="emotion-main">
+                    <div class="emotion-title">1 No Talking</div>
+                    <div class="emotion-subtitle">No words</div>
+                  </div>
+                </div>
+              </button>
+
+              <button class="emotion-card voice-card-2 selectable" data-group="voice" data-meter="56" data-message="That sounds like a whisper voice." data-praise="Well done! You picked your voice level!">
+                <span class="selected-mark">✓</span>
+                <div class="emotion-card-content">
+                  <div class="emotion-left">
+                    <div class="emoji-badge">🤐</div>
+                  </div>
+                  <div class="emotion-main">
+                    <div class="emotion-title">2 Little Talk, Whisper</div>
+                    <div class="emotion-subtitle">Talk softly</div>
+                  </div>
+                </div>
+              </button>
+
+              <button class="emotion-card voice-card-3 selectable" data-group="voice" data-meter="94" data-message="That sounds like a calm talking voice." data-praise="Great job showing your talking level!">
+                <span class="selected-mark">✓</span>
+                <div class="emotion-card-content">
+                  <div class="emotion-left">
+                    <div class="emoji-badge">🙂</div>
+                  </div>
+                  <div class="emotion-main">
+                    <div class="emotion-title">3 OK, Talking</div>
+                    <div class="emotion-subtitle">Talking voice</div>
+                  </div>
+                </div>
+              </button>
+
+              <button class="emotion-card voice-card-4 selectable" data-group="voice" data-meter="132" data-message="That sounds loud. Let's bring it down a little." data-praise="Nice choice! You did a good job!">
+                <span class="selected-mark">✓</span>
+                <div class="emotion-card-content">
+                  <div class="emotion-left">
+                    <div class="emoji-badge">😮</div>
+                  </div>
+                  <div class="emotion-main">
+                    <div class="emotion-title">4 Shout Loud</div>
+                    <div class="emotion-subtitle">Very loud voice</div>
+                  </div>
+                </div>
+              </button>
+
+              <button class="emotion-card voice-card-5 selectable" data-group="voice" data-meter="150" data-message="That voice is very loud. Let's take a breath together." data-praise="Good job using the voice scale!">
+                <span class="selected-mark">✓</span>
+                <div class="emotion-card-content">
+                  <div class="emotion-left">
+                    <div class="emoji-badge">😱</div>
+                  </div>
+                  <div class="emotion-main">
+                    <div class="emotion-title">5 Too Big, Too Loud</div>
+                    <div class="emotion-subtitle">Emergency loud voice</div>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRAISE -->
+    <div class="praise-overlay" id="praiseOverlay">
+      <div class="praise-box">
+        <div class="praise-star-wrap">
+          <div class="praise-avatar-shell" aria-hidden="true">
+            <div class="robot" id="praiseAvatar">
+              <div class="antenna"></div>
+              <div class="antenna-ball"></div>
+              <div class="robot-head">
+                <div class="ear left"></div>
+                <div class="ear right"></div>
+                <div class="robot-face">
+                  <div class="brow left"></div>
+                  <div class="brow right"></div>
+                  <div class="eye left"></div>
+                  <div class="eye right"></div>
+                  <div class="mouth"></div>
+                </div>
+              </div>
+              <div class="arm left"><div class="hand"></div></div>
+              <div class="arm right"><div class="hand"></div></div>
+              <div class="robot-body"><div class="robot-panel"></div></div>
+              <div class="leg left"></div>
+              <div class="leg right"></div>
+            </div>
+          </div>
+          <div class="praise-message">
+            <h2 class="praise-title">Great job!</h2>
+            <p class="praise-text" id="praiseText">Thank you for sharing how you feel.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const screens = document.querySelectorAll('.screen');
+    const homeStatus = document.getElementById('homeStatus');
+    const praiseOverlay = document.getElementById('praiseOverlay');
+    const praiseText = document.getElementById('praiseText');
+    const praiseAvatar = document.getElementById('praiseAvatar');
+    const meterThumb = document.getElementById('meterThumb');
+    const voiceMeter = document.getElementById('voiceMeter');
+    const avatarElements = {
+      home: document.getElementById('homeAvatar'),
+      daily: document.getElementById('dailyAvatar'),
+      control: document.getElementById('controlAvatar'),
+      voice: document.getElementById('voiceAvatar')
+    };
+    const avatarBubbleIds = {
+      home: 'homeRobotBubble',
+      daily: 'dailyRobotBubble',
+      control: 'controlRobotBubble',
+      voice: 'voiceRobotBubble'
+    };
+    const avatarSupportMessages = {
+      home: [
+        "I'm listening to you.",
+        "You can tap any tool and I'll stay with you.",
+        "Take your time. I'm right here."
+      ],
+      daily: [
+        "Thank you for showing me how you feel.",
+        "I see you, and I'm listening.",
+        "You are doing a brave job checking in."
+      ],
+      control: [
+        "Your body feelings matter.",
+        "Thank you for letting me know what you need.",
+        "I'm here with you while you choose."
+      ],
+      voice: [
+        "You're helping me understand your voice level.",
+        "Thanks for showing me how loud it feels.",
+        "I'm listening carefully to your choice."
+      ]
+    };
+    const avatarStateTimers = {};
+    const clickSound = new Audio('floraphonic-infographic-pop-1-197868.mp3');
+    const successSound = new Audio('winning-a-game.wav');
+    clickSound.preload = 'auto';
+    successSound.preload = 'auto';
+
+    const homeRobotMessages = [
+      "I'm here to help you check in.",
+      "Tap one box to begin.",
+      "You're doing a great job.",
+      "Take your time and choose a tool.",
+      "Let's check in together."
+    ];
+
+    let currentHomeRobotIndex = 0;
+    let lastCelebrationMood = 'happy';
+    let lastCelebrationGroup = null;
+    let lastCelebrationLevel = null;
+
+    function getAvatarBubble(screenId) {
+      return document.getElementById(avatarBubbleIds[screenId]);
+    }
+
+    function applyAvatarStateClasses(avatar, state, duration = 1400, timerKey = null) {
+      if (!avatar) return;
+
+      avatar.classList.remove('is-listening', 'is-comforting', 'is-cheering', 'is-booped', 'is-celebrating');
+      if (state) {
+        avatar.classList.add(state);
+      }
+
+      if (timerKey) {
+        clearTimeout(avatarStateTimers[timerKey]);
+        if (state) {
+          avatarStateTimers[timerKey] = setTimeout(() => {
+            avatar.classList.remove(state);
+          }, duration);
+        }
+      }
+    }
+
+    function setAvatarState(screenId, state, duration = 1400) {
+      const avatar = avatarElements[screenId];
+      applyAvatarStateClasses(avatar, state, duration, screenId);
+    }
+
+    function applyAvatarMood(avatar, mood) {
+      if (!avatar) return;
+
+      avatar.classList.remove('mood-happy', 'mood-calm', 'mood-worried', 'mood-sad', 'mood-surprised', 'mood-overwhelmed');
+      if (mood) {
+        avatar.classList.add(`mood-${mood}`);
+      }
+    }
+
+    function setAvatarMood(screenId, mood) {
+      applyAvatarMood(avatarElements[screenId], mood);
+    }
+
+    function setVoiceAvatarLevel(avatar, level = null) {
+      if (!avatar) return;
+
+      avatar.classList.remove('voice-level-1', 'voice-level-2', 'voice-level-3', 'voice-level-4', 'voice-level-5');
+      if (level >= 1 && level <= 5) {
+        avatar.classList.add(`voice-level-${level}`);
+      }
+    }
+
+    function resetAvatar(screenId, mood = 'calm') {
+      const avatar = avatarElements[screenId];
+      if (!avatar) return;
+
+      applyAvatarStateClasses(avatar, null, 0, screenId);
+      applyAvatarMood(avatar, mood);
+    }
+
+    function getAvatarMood(group, level) {
+      if (group === 'daily') {
+        if (level === 1) return 'happy';
+        if (level === 2) return 'calm';
+        if (level === 3) return 'worried';
+        if (level === 4) return 'sad';
+        return 'overwhelmed';
+      }
+
+      if (group === 'control') {
+        if (level === 1) return 'happy';
+        if (level === 2) return 'calm';
+        if (level === 3) return 'worried';
+        if (level === 4) return 'surprised';
+        return 'overwhelmed';
+      }
+
+      if (group === 'voice') {
+        if (level === 3) return 'happy';
+        return 'calm';
+      }
+
+      return 'happy';
+    }
+
+    function reactAvatarToLevel(screenId, level) {
+      if (level <= 2) {
+        setAvatarState(screenId, 'is-cheering', 1700);
+      } else if (level === 3) {
+        setAvatarState(screenId, 'is-listening', 1700);
+      } else {
+        setAvatarState(screenId, 'is-comforting', 1900);
+      }
+    }
+
+    function sayToAvatar(screenId, message) {
+      const bubble = getAvatarBubble(screenId);
+      if (!bubble) return;
+
+      bubble.style.opacity = '0';
+      bubble.style.transform = 'translateY(8px) scale(0.96)';
+
+      setTimeout(() => {
+        bubble.textContent = message;
+        bubble.style.opacity = '1';
+        bubble.style.transform = 'translateY(0) scale(1)';
+      }, 180);
+    }
+
+    function playTapSound(type = 'select') {
+      const sound = clickSound.cloneNode();
+      sound.volume = type === 'open' ? 0.42 : 0.56;
+      sound.currentTime = 0;
+      sound.play().catch(() => {});
+    }
+
+    function playSuccessSound() {
+      const sound = successSound.cloneNode();
+      sound.volume = 0.48;
+      sound.currentTime = 0;
+      sound.play().catch(() => {});
+    }
+
+    function updateVoiceMeter(level, card) {
+      if (!voiceMeter || !card) return;
+
+      voiceMeter.classList.add('has-selection');
+      voiceMeter.dataset.level = String(level);
+
+      if (meterThumb && card.dataset.meter) {
+        meterThumb.style.bottom = `${card.dataset.meter}px`;
+      }
+    }
+
+    function showScreen(id) {
+      screens.forEach(screen => screen.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+
+      if (id === 'homeScreen') {
+        homeStatus.textContent = 'Choose one tool to begin.';
+        resetAvatar('home', 'happy');
+      } else if (id === 'dailyScreen') {
+        homeStatus.textContent = 'Daily Check In opened.';
+        resetAvatar('daily', 'calm');
+      } else if (id === 'controlScreen') {
+        homeStatus.textContent = 'Control Scale opened.';
+        resetAvatar('control', 'happy');
+      } else if (id === 'voiceScreen') {
+        homeStatus.textContent = 'Voice Volume Scale opened.';
+        resetAvatar('voice', 'calm');
+        setVoiceAvatarLevel(avatarElements.voice, null);
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cycleHomeRobotBubble() {
+      const bubble = document.getElementById('homeRobotBubble');
+      if (!bubble) return;
+
+      setInterval(() => {
+        bubble.classList.remove('fade-in');
+        bubble.classList.add('fade-out');
+
+        setTimeout(() => {
+          currentHomeRobotIndex = (currentHomeRobotIndex + 1) % homeRobotMessages.length;
+          bubble.textContent = homeRobotMessages[currentHomeRobotIndex];
+          bubble.classList.remove('fade-out');
+          bubble.classList.add('fade-in');
+        }, 550);
+      }, 3400);
+    }
+
+    function updateRobotBubble(screenId, message) {
+      const bubble = getAvatarBubble(screenId);
+      if (!bubble) return;
+
+      bubble.style.opacity = '0';
+      bubble.style.transform = 'translateY(8px) scale(0.96)';
+
+      setTimeout(() => {
+        bubble.textContent = message;
+        bubble.style.opacity = '1';
+        bubble.style.transform = 'translateY(0) scale(1)';
+      }, 220);
+    }
+
+    function celebrateAvatar(screenId, message) {
+      if (screenId === 'home') {
+        setAvatarMood(screenId, 'happy');
+      }
+      setAvatarState(screenId, 'is-celebrating', 1100);
+      if (message) {
+        updateRobotBubble(screenId, message);
+      }
+    }
+
+    function selectCard(card) {
+      const group = card.dataset.group;
+      const cardLevelClass = Array.from(card.classList).find(name => /-(\d)$/.test(name));
+      const level = cardLevelClass ? Number(cardLevelClass.match(/(\d)$/)[1]) : 3;
+      const stack = card.closest('.options-stack') || card.closest('.voice-options');
+
+      document.querySelectorAll(`.selectable[data-group="${group}"]`).forEach(btn => {
+        btn.classList.remove('selected');
+      });
+
+      card.classList.add('selected');
+      if (stack) {
+        stack.classList.add('has-active-selection');
+      }
+
+      const message = card.dataset.message;
+      const successBubbleMessage = message
+        ? `Great job! ${message}`
+        : 'Great job! You made your choice.';
+
+      const selectedMood = getAvatarMood(group, level);
+      lastCelebrationMood = selectedMood;
+      lastCelebrationGroup = group;
+      lastCelebrationLevel = level;
+      setAvatarMood(group, selectedMood);
+      celebrateAvatar(group, successBubbleMessage);
+
+      if (group === 'voice') {
+        updateVoiceMeter(level, card);
+        setVoiceAvatarLevel(avatarElements.voice, level);
+      }
+
+      launchConfetti();
+
+      setTimeout(() => {
+        showPraise(card.dataset.praise || 'Great job checking in!');
+      }, 180);
+    }
+
+    document.querySelectorAll('.selectable').forEach(card => {
+      card.addEventListener('click', () => selectCard(card));
+    });
+
+    document.querySelectorAll('.tool-card').forEach(card => {
+      card.addEventListener('click', () => {
+        playTapSound('open');
+        setAvatarState('home', 'is-cheering', 1500);
+      });
+
+      card.addEventListener('mouseenter', () => {
+        setAvatarState('home', 'is-listening', 1200);
+
+        if (card.classList.contains('tool-daily')) {
+          sayToAvatar('home', "Let's check how your day feels.");
+        } else if (card.classList.contains('tool-control')) {
+          sayToAvatar('home', "We can figure out what your body needs.");
+        } else if (card.classList.contains('tool-voice')) {
+          sayToAvatar('home', "Let's listen for your voice level together.");
+        }
+      });
+
+      card.addEventListener('focus', () => {
+        setAvatarState('home', 'is-listening', 1200);
+      });
+    });
+
+    Object.entries(avatarElements).forEach(([screenId, avatar]) => {
+      if (!avatar) return;
+
+      avatar.addEventListener('click', () => {
+        const messagePool = avatarSupportMessages[screenId];
+        const nextMessage = messagePool[Math.floor(Math.random() * messagePool.length)];
+        playTapSound(screenId === 'home' ? 'open' : 'select');
+        sayToAvatar(screenId, nextMessage);
+        setAvatarState(screenId, 'is-booped', 1200);
+      });
+
+      avatar.addEventListener('mouseenter', () => {
+        setAvatarState(screenId, 'is-listening', 1000);
+      });
+    });
+
+    function showPraise(message) {
+      praiseText.textContent = message;
+      applyAvatarMood(praiseAvatar, lastCelebrationMood);
+      applyAvatarStateClasses(praiseAvatar, null);
+      setVoiceAvatarLevel(praiseAvatar, lastCelebrationGroup === 'voice' ? lastCelebrationLevel : null);
+      praiseOverlay.classList.add('open');
+
+      setTimeout(() => {
+        praiseOverlay.classList.remove('open');
+
+        setTimeout(() => {
+          showScreen('homeScreen');
+          homeStatus.textContent = 'Great job checking in! Choose a tool again if you want.';
+          setAvatarMood('home', 'happy');
+          celebrateAvatar('home', 'Great job! You checked in so well.');
+        }, 300);
+      }, 2200);
+    }
+
+    const confettiCanvas = document.getElementById('confettiCanvas');
+    const ctx = confettiCanvas.getContext('2d');
+    let confettiPieces = [];
+    let confettiAnimationId = null;
+
+    function resizeCanvas() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function launchConfetti() {
+      cancelAnimationFrame(confettiAnimationId);
+      confettiPieces = [];
+      playSuccessSound();
+
+      const colors = ['#ff6b6b', '#ffd93d', '#6bcB77', '#4d96ff', '#ff9f1c', '#c77dff'];
+
+      for (let i = 0; i < 120; i++) {
+        confettiPieces.push({
+          x: Math.random() * confettiCanvas.width,
+          y: -20 - Math.random() * confettiCanvas.height * 0.25,
+          size: 6 + Math.random() * 8,
+          speedY: 2 + Math.random() * 3,
+          speedX: -1.5 + Math.random() * 3,
+          rotation: Math.random() * Math.PI,
+          rotationSpeed: -0.15 + Math.random() * 0.3,
+          color: colors[Math.floor(Math.random() * colors.length)]
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+        confettiPieces.forEach(piece => {
+          piece.y += piece.speedY;
+          piece.x += piece.speedX;
+          piece.rotation += piece.rotationSpeed;
+
+          ctx.save();
+          ctx.translate(piece.x, piece.y);
+          ctx.rotate(piece.rotation);
+          ctx.fillStyle = piece.color;
+          ctx.fillRect(-piece.size / 2, -piece.size / 2, piece.size, piece.size * 0.6);
+          ctx.restore();
+        });
+
+        confettiPieces = confettiPieces.filter(piece => piece.y < confettiCanvas.height + 50);
+
+        if (confettiPieces.length > 0) {
+          confettiAnimationId = requestAnimationFrame(animate);
+        } else {
+          ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        }
+      }
+
+      animate();
+    }
+
+    cycleHomeRobotBubble();
+  </script>
+</body>
+</html>
+

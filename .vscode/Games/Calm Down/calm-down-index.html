@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASTT Sensory Calm</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <div class="timer-box">
+            <svg viewBox="0 0 120 120" class="timer-svg">
+                <circle class="timer-bg" cx="60" cy="60" r="54"></circle>
+                <circle id="progress-ring" class="timer-progress" cx="60" cy="60" r="54"></circle>
+            </svg>
+            <div id="countdown-text">30</div>
+        </div>
+
+        <h1 id="instruction">Ready?</h1>
+
+        <div class="animation-stage">
+            <svg id="squeeze-svg" class="svg-content hidden" viewBox="0 0 200 200">
+                <circle class="stress-ball" cx="100" cy="100" r="30" fill="#ff8a65" />
+                <path class="hand-left" d="M40,70 Q60,100 40,130" stroke="#4db6ac" stroke-width="8" fill="none" stroke-linecap="round" />
+                <path class="hand-right" d="M160,70 Q140,100 160,130" stroke="#4db6ac" stroke-width="8" fill="none" stroke-linecap="round" />
+            </svg>
+
+            <svg id="rub-svg" class="svg-content hidden" viewBox="0 0 200 200">
+                <rect x="80" y="40" width="40" height="120" rx="20" fill="#e0e0e0" />
+                <ellipse class="rub-glow" cx="100" cy="60" rx="30" ry="15" fill="rgba(255, 255, 0, 0.6)" />
+            </svg>
+
+            <div id="done-view" class="hidden">
+                <img src="assets/alldone.gif" class="done-gif">
+            </div>
+        </div>
+
+        <button id="start-btn" class="btn" onclick="startApp()">Start</button>
+    </div>
+
+    <audio id="start-sound" src="assets/start.mp3"></audio>
+    <audio id="finish-sound" src="assets/finish.mp3"></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>

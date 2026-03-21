@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Game - Home</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="home-container">
+        <h1>🧮 Math Counting Game</h1>
+        <p>Welcome! Your total score across all games is:</p>
+        <div class="total-score" id="totalScoreDisplay">0</div>
+        <button class="start-btn" onclick="startGame()">🚀 Start Playing</button>
+        <br>
+        <button class="reset-btn" onclick="resetTotalScore()">Reset Total Score</button>
+    </div>
+
+    <script>
+        // Display total score from localStorage
+        function updateTotalScoreDisplay() {
+            const total = localStorage.getItem('mathGameTotalScore') || 0;
+            document.getElementById('totalScoreDisplay').textContent = total;
+        }
+
+        // Start game: navigate to game page
+        function startGame() {
+            window.location.href = 'mathgamepage.html';
+        }
+
+        // Reset total score (optional)
+        function resetTotalScore() {
+            localStorage.setItem('mathGameTotalScore', 0);
+            updateTotalScoreDisplay();
+        }
+
+        // Initialize on page load
+        window.onload = updateTotalScoreDisplay;
+    </script>
+</body>
+</html>

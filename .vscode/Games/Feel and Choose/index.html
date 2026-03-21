@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunshine Kids - Game Menu</title>
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Additional menu-specific styles */
+        .menu-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        
+        .menu-title {
+            font-size: 3rem;
+            color: var(--color-text);
+            margin-bottom: 20px;
+            animation: gentle-appear 1s ease-out;
+        }
+        
+        .menu-subtitle {
+            font-size: 1.5rem;
+            color: var(--color-text-light);
+            margin-bottom: 50px;
+        }
+        
+        .game-cards {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .game-card {
+            background: white;
+            border-radius: 40px;
+            padding: 40px 30px;
+            width: 300px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 3px solid transparent;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-color: var(--color-calm);
+        }
+        
+        .game-emoji {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+        
+        .game-card h2 {
+            font-size: 2rem;
+            color: var(--color-text);
+            margin-bottom: 10px;
+        }
+        
+        .game-card p {
+            color: var(--color-text-light);
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .points-badge {
+            display: inline-block;
+            background-color: var(--color-calm);
+            color: var(--color-text);
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .footer {
+            margin-top: 60px;
+            color: var(--color-text-light);
+        }
+        
+        @media (max-width: 768px) {
+            .menu-title {
+                font-size: 2.5rem;
+            }
+            
+            .game-card {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-container">
+        <h1 class="menu-title">🌟 Sunshine Kids 🌟</h1>
+        <p class="menu-subtitle">Choose a game to play!</p>
+        
+        <div class="game-cards">
+            <!-- Feel & Choose Game Card -->
+            <div class="game-card" onclick="window.location.href='feel-choose.html'">
+                <div class="game-emoji">😊</div>
+                <h2>Feel & Choose</h2>
+                <p>How are you feeling today?</p>
+                <span class="points-badge">+5 points per check-in</span>
+            </div>
+            
+            <!-- Star Timer Game Card -->
+            <div class="game-card" onclick="window.location.href='timer.html'">
+                <div class="game-emoji">⭐</div>
+                <h2>Star Timer</h2>
+                <p>Earn stars as you complete tasks!</p>
+                <span class="points-badge">+20 points when done</span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>✨ All feelings are valid. You're doing great! ✨</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feel & Choose - Emotional Regulation</title>
+    
+    <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Google Fonts for better readability -->
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Main game container -->
+    <div class="game-container">
+        
+        <!-- Header section with skip/exit option -->
+        <header class="game-header">
+    <!-- Add this back button BEFORE the skip button -->
+    <button class="back-to-menu-btn" onclick="window.location.href='index.html'" 
+            aria-label="Back to main menu" title="Back to menu">
+        <span class="btn-text">← Menu</span>
+    </button>
+</header>
+
+        <!-- Main game content -->
+        <main class="game-main">
+            
+            <!-- Title with gentle animation -->
+            <h1 class="game-title">How are you feeling today?</h1>
+            
+            <!-- Gentle prompt to support understanding -->
+            <p class="gentle-prompt">Take your time. All feelings are okay.</p>
+
+            <!-- Emotion selection grid -->
+            <div class="emotion-grid" role="group" aria-label="Choose your emotion">
+                
+                <!-- Happy emotion card -->
+                <div class="emotion-card" data-emotion="happy" tabindex="0" role="button" aria-label="I feel happy">
+                    <div class="emotion-icon">😊</div>
+                    <div class="emotion-label">Happy</div>
+                    <!-- Gentle pulse animation container -->
+                    <div class="pulse-effect"></div>
+                </div>
+
+                <!-- Sad emotion card -->
+                <div class="emotion-card" data-emotion="sad" tabindex="0" role="button" aria-label="I feel sad">
+                    <div class="emotion-icon">😢</div>
+                    <div class="emotion-label">Sad</div>
+                    <div class="pulse-effect"></div>
+                </div>
+
+                <!-- Mad/Angry emotion card -->
+                <div class="emotion-card" data-emotion="mad" tabindex="0" role="button" aria-label="I feel mad">
+                    <div class="emotion-icon">😠</div>
+                    <div class="emotion-label">Mad</div>
+                    <div class="pulse-effect"></div>
+                </div>
+
+                <!-- Tired emotion card -->
+                <div class="emotion-card" data-emotion="tired" tabindex="0" role="button" aria-label="I feel tired">
+                    <div class="emotion-icon">😴</div>
+                    <div class="emotion-label">Tired</div>
+                    <div class="pulse-effect"></div>
+                </div>
+
+                <!-- Calm emotion card -->
+                <div class="emotion-card" data-emotion="calm" tabindex="0" role="button" aria-label="I feel calm">
+                    <div class="emotion-icon">😌</div>
+                    <div class="emotion-label">Calm</div>
+                    <div class="pulse-effect"></div>
+                </div>
+
+                <!-- Worried emotion card -->
+                <div class="emotion-card" data-emotion="worried" tabindex="0" role="button" aria-label="I feel worried">
+                    <div class="emotion-icon">😟</div>
+                    <div class="emotion-label">Worried</div>
+                    <div class="pulse-effect"></div>
+                </div>
+            </div>
+
+            <!-- Phase Indicator -->
+            <div class="phase-indicator">
+           <!-- 
+                <div class="phase-step active" data-phase="feel">1️⃣ Feel</div>
+                <div class="phase-step" data-phase="confirm">2️⃣ Confirm</div>
+                <div class="phase-step" data-phase="why">3️⃣ Why?</div>
+                <div class="phase-step" data-phase="complete">✨ Done</div> 
+            -->
+            </div>
+
+            <!-- Confirmation Phase (initially hidden) -->
+            <div class="confirmation-phase" style="display: none;">
+                <h2 class="phase-title">You said you feel...</h2>
+                <div class="selected-emotion-display">
+                    <span class="selected-emotion-icon"></span>
+                    <span class="selected-emotion-name"></span>
+                </div>
+                <div class="confirmation-buttons">
+                    <button class="word-btn confirm-btn">Confirm</button>
+                </div>
+            </div>
+
+            <!-- ===== WHY PHASE ===== -->
+            <div class="why-phase" style="display: none;">
+                <h2 class="phase-title">Why do you feel this way?</h2>
+                <p class="phase-subtitle">You can choose more than one</p>
+
+                <div class="why-options-grid" style="display: flex; flex-wrap: wrap; gap: var(--spacing-md); justify-content: center;">
+                    <!-- Options will be populated by JavaScript -->
+                </div>
+                
+                <!-- Keep custom input same -->
+                <div class="why-custom-input">
+                    <label for="custom-reason">Or tell us in your own words:</label>
+                    <div class="custom-input-group">
+                        <input type="text" id="custom-reason" placeholder="Type here...">
+                        <button class="add-reason-btn">➕ Add</button>
+                    </div>
+                </div>
+
+                <div class="why-navigation">
+                    <button class="word-btn back-to-confirm-btn">← back</button>
+                    <button class="word-btn complete-btn" disabled>complete</button>
+                </div>
+            </div>
+
+            <!-- Summary Phase (initially hidden) -->
+            <div class="summary-phase" style="display: none;">
+                <h2 class="phase-title">Thank you for sharing!</h2>
+                <div class="summary-content">
+                    <p>You felt <span class="summary-emotion"></span></p>
+                    <p>Because: <span class="summary-reasons"></span></p>
+                </div>
+                <div class="summary-actions">
+                    <button class="new-checkin-btn">🔄 New Check-in</button>
+                    <button class="store-btn">🏆 Go to Store</button>
+                </div>
+            </div>
+
+            <!-- Data Storage Status (for visual feedback) -->
+            <div class="storage-status" style="display: none;">
+                <span class="saved-icon">💾</span> Saved!
+            </div>
+            <!-- -->
+
+
+            <!-- Core words section - AAC style communication -->
+            <div class="core-words" aria-label="Common phrases you can use">
+                <h2 class="section-title">You can say...</h2>
+                <div class="word-buttons">
+                    <button class="word-btn" data-word="i">I</button>
+                    <button class="word-btn" data-word="feel">feel</button>
+                    <button class="word-btn" data-word="more">more</button>
+                    <button class="word-btn" data-word="stop">stop</button>
+                    <button class="word-btn" data-word="dont-want">I don't want</button>
+                    <button class="word-btn" data-word="not-yet">not yet</button>
+                </div>
+            </div>
+
+            <!-- Emotion response area - shows after selection -->
+            <div class="emotion-response" aria-live="polite" hidden>
+                <div class="response-bubble">
+                    <span class="response-text"></span>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer with validation message -->
+        <footer class="game-footer">
+            <p class="validation-message">✨ All feelings are valid. You're doing great! ✨</p>
+        </footer>
+    </div>
+
+    <!-- Link to external JavaScript file -->
+    <script src="js/game.js"></script>
+</body>
+</html>

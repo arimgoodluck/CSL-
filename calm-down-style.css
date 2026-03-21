@@ -1,0 +1,39 @@
+:root {
+    --teal: #4db6ac;
+    --bg: #f0f4f8;
+}
+
+body { background: var(--bg); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; }
+
+.container { background: white; padding: 30px; border-radius: 40px; text-align: center; width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+
+/* SVG Timer Ring */
+.timer-svg { transform: rotate(-90deg); width: 120px; }
+.timer-bg { fill: none; stroke: #eee; stroke-width: 8; }
+.timer-progress {
+    fill: none; stroke: var(--teal); stroke-width: 8;
+    stroke-dasharray: 339.29; stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear; stroke-linecap: round;
+}
+
+#countdown-text { position: absolute; top: 75px; left: 50%; transform: translateX(-50%); font-size: 1.5rem; font-weight: bold; color: var(--teal); }
+
+.animation-stage { height: 220px; display: flex; align-items: center; justify-content: center; position: relative; }
+.svg-content { width: 100%; height: 100%; }
+
+/* SQUEEZE ANIMATION */
+.hand-left { animation: squeezeL 2s infinite ease-in-out; }
+.hand-right { animation: squeezeR 2s infinite ease-in-out; }
+.stress-ball { animation: ballSquish 2s infinite ease-in-out; }
+
+@keyframes squeezeL { 0%, 100% { d: path("M40,70 Q60,100 40,130"); } 50% { d: path("M75,75 Q85,100 75,125"); } }
+@keyframes squeezeR { 0%, 100% { d: path("M160,70 Q140,100 160,130"); } 50% { d: path("M125,75 Q115,100 125,125"); } }
+@keyframes ballSquish { 0%, 100% { transform: scale(1); transform-origin: center; } 50% { transform: scale(0.8); transform-origin: center; } }
+
+/* RUB ANIMATION */
+.rub-glow { animation: rubSlide 2s infinite ease-in-out; filter: blur(8px); }
+@keyframes rubSlide { 0%, 100% { cy: 60; opacity: 0.2; } 50% { cy: 140; opacity: 1; } }
+
+.done-gif { width: 180px; border-radius: 20px; }
+.hidden { display: none; }
+.btn { background: var(--teal); color: white; border: none; padding: 15px 50px; border-radius: 50px; font-size: 1.2rem; cursor: pointer; }
